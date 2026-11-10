@@ -14,6 +14,7 @@ const router = express.Router();
 // Juntadas
 router.get("/", eventController.list);
 router.post("/", eventController.create);
+router.post("/join-by-code", eventController.joinByCode);
 router.get("/:id", eventController.get);
 router.delete("/:id", eventController.remove);
 router.post("/:id/join", eventController.join);

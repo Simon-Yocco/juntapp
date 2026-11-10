@@ -53,46 +53,79 @@
   </header>
 
   <!-- VISTA 0: INICIO DE SESIÓN / REGISTRO -->
-  <main id="view-auth" class="max-w-sm mx-auto px-4 pt-10 hidden">
+  <main id="view-auth" class="max-w-sm mx-auto px-4 pt-8 pb-6 hidden">
+    <!-- Bienvenida -->
+    <div class="text-center mb-5">
+      <div class="w-12 h-12 mx-auto rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-base mb-3">CJ</div>
+      <h2 id="auth-title" class="text-lg font-bold text-slate-900">Organizá tus juntadas</h2>
+      <p id="auth-subtitle" class="text-xs text-slate-500 mt-0.5">Fecha, sede, tareas y cuentas, todo en un solo lugar</p>
+    </div>
+
+    <div id="auth-invite-notice" class="hidden mb-3 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-start gap-2">
+      <i data-lucide="party-popper" class="w-4 h-4 shrink-0 mt-px"></i>
+      <span>Te invitaron a una juntada. Iniciá sesión o creá tu cuenta para sumarte.</span>
+    </div>
+
     <section class="clean-card p-5 space-y-4">
-      <div class="text-center space-y-1">
-        <h2 class="text-base font-bold text-slate-900">Organizá tus juntadas</h2>
-        <p id="auth-subtitle" class="text-xs text-slate-500">Iniciá sesión o creá tu cuenta para empezar</p>
+      <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg text-xs font-medium" role="tablist">
+        <button id="auth-tab-login" type="button" role="tab" onclick="setAuthMode('login')" class="py-1.5 rounded-md transition-colors">Iniciar sesión</button>
+        <button id="auth-tab-register" type="button" role="tab" onclick="setAuthMode('register')" class="py-1.5 rounded-md transition-colors">Crear cuenta</button>
       </div>
 
-      <div id="auth-invite-notice" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md p-2.5 text-center">
-        Te invitaron a una juntada. Iniciá sesión o creá tu cuenta para sumarte.
-      </div>
-
-      <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg text-xs font-medium">
-        <button id="auth-tab-login" onclick="setAuthMode('login')" class="py-1.5 rounded-md">Iniciar sesión</button>
-        <button id="auth-tab-register" onclick="setAuthMode('register')" class="py-1.5 rounded-md">Crear cuenta</button>
-      </div>
-
-      <form id="auth-form" class="space-y-2.5 text-xs" novalidate>
+      <form id="auth-form" class="space-y-3 text-xs" novalidate>
         <div>
           <label for="auth-username" class="block text-slate-600 mb-1 font-medium">Usuario</label>
-          <input type="text" id="auth-username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ej: simon"
-                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 focus:bg-white">
+          <div class="relative">
+            <i data-lucide="at-sign" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="text" id="auth-username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30" placeholder="ej: simon"
+                   class="auth-input pl-8">
+          </div>
+          <p id="auth-username-hint" class="hidden text-[11px] text-slate-400 mt-1">Entre 3 y 30 caracteres: letras, números, punto o guion bajo.</p>
         </div>
+
         <div id="auth-displayname-field" class="hidden">
-          <label for="auth-displayname" class="block text-slate-600 mb-1 font-medium">Tu nombre (lo ven tus amigos)</label>
-          <input type="text" id="auth-displayname" autocomplete="name" placeholder="ej: Simon Yocco"
-                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 focus:bg-white">
+          <label for="auth-displayname" class="block text-slate-600 mb-1 font-medium">Tu nombre</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="text" id="auth-displayname" autocomplete="name" maxlength="40" placeholder="ej: Simon Yocco"
+                   class="auth-input pl-8">
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Es el nombre que van a ver tus amigos.</p>
         </div>
+
         <div>
           <label for="auth-password" class="block text-slate-600 mb-1 font-medium">Contraseña</label>
-          <input type="password" id="auth-password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"
-                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 focus:bg-white">
+          <div class="relative">
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input type="password" id="auth-password" autocomplete="current-password" maxlength="72" placeholder="Tu contraseña"
+                   class="auth-input pl-8 pr-10">
+            <button type="button" id="auth-password-toggle" onclick="togglePasswordVisibility()" title="Mostrar contraseña"
+                    class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded text-slate-400 hover:text-slate-700">
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <p id="auth-password-hint" class="hidden text-[11px] text-slate-400 mt-1">Mínimo 6 caracteres.</p>
         </div>
 
-        <div id="auth-error" class="hidden text-rose-700 bg-rose-50 border border-rose-200 rounded-md p-2"></div>
+        <div id="auth-error" role="alert" class="hidden text-rose-700 bg-rose-50 border border-rose-200 rounded-md p-2"></div>
 
-        <button type="submit" id="auth-submit" class="w-full py-2 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors disabled:opacity-60">
+        <button type="submit" id="auth-submit" class="w-full py-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors disabled:opacity-60 disabled:cursor-wait">
           Iniciar sesión
         </button>
       </form>
+
+      <p class="text-center text-[11px] text-slate-500">
+        <span id="auth-switch-text">¿No tenés cuenta?</span>
+        <button type="button" id="auth-switch-btn" onclick="setAuthMode(authMode === 'login' ? 'register' : 'login')" class="font-semibold text-slate-800 hover:underline">Creá una</button>
+      </p>
     </section>
+
+    <!-- Qué podés hacer -->
+    <ul class="mt-5 space-y-2 text-xs text-slate-600">
+      <li class="flex items-center gap-2"><i data-lucide="calendar-check" class="w-4 h-4 text-slate-400 shrink-0"></i>Votá la fecha y confirmá en un toque</li>
+      <li class="flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-slate-400 shrink-0"></i>Rotación justa de quién recibe</li>
+      <li class="flex items-center gap-2"><i data-lucide="calculator" class="w-4 h-4 text-slate-400 shrink-0"></i>Cuentas claras: quién le transfiere a quién</li>
+    </ul>
   </main>
 
   <!-- VISTA 1: LISTA PRINCIPAL DE JUNTADAS (DASHBOARD) -->
@@ -107,6 +140,26 @@
         + Crear
       </button>
     </div>
+
+    <!-- Unirse a una juntada con su código -->
+    <form id="join-code-form" class="clean-card p-3.5 space-y-2" novalidate>
+      <div>
+        <div class="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="ticket" class="w-3.5 h-3.5 text-slate-500"></i>
+          ¿Te pasaron un código? Sumate a la juntada
+        </div>
+        <div class="text-[11px] text-slate-500">Son 6 letras y números, por ejemplo K7MQ2X.</div>
+      </div>
+      <div class="flex gap-1.5">
+        <input type="text" id="join-code-input" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false"
+               placeholder="CÓDIGO" aria-label="Código de la juntada"
+               class="flex-1 min-w-0 text-sm font-mono tracking-[0.3em] uppercase text-center px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-900 placeholder:tracking-normal placeholder:font-sans placeholder:text-xs placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:bg-white">
+        <button type="submit" id="join-code-btn" disabled
+                class="text-xs px-3.5 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap disabled:bg-slate-300 disabled:cursor-not-allowed">
+          Unirme
+        </button>
+      </div>
+    </form>
 
     <!-- Contenedor dinámico de eventos -->
     <div id="events-list-container" class="space-y-2.5">
@@ -159,20 +212,29 @@
       </div>
       
       <h2 id="event-title" class="text-lg font-bold text-slate-900 mb-1"></h2>
-      <p id="event-organizer" class="text-[11px] text-slate-400 mb-4"></p>
+      <p id="event-organizer" class="text-[11px] text-slate-400 mb-2"></p>
+
+      <!-- Código para invitar -->
+      <button type="button" onclick="copyJoinCode()" title="Copiar código"
+              class="inline-flex items-center gap-1.5 mb-4 text-[11px] text-slate-600 bg-white border border-dashed border-slate-300 rounded-full pl-3 pr-2 py-1 hover:bg-slate-50 transition-colors">
+        <span>Código:</span>
+        <span id="event-join-code" class="font-mono font-bold tracking-widest text-slate-900"></span>
+        <i data-lucide="copy" class="w-3 h-3 text-slate-400"></i>
+      </button>
 
       <!-- Formulario de confirmación centrado -->
       <div class="max-w-sm mx-auto space-y-2.5">
-        <p id="rsvp-current-status" class="text-xs text-slate-600"></p>
+        <!-- Cartel con el estado de mi asistencia (pedido en el testing) -->
+        <div id="rsvp-banner" role="status" aria-live="polite" class="rounded-lg border p-2.5 text-xs flex items-center justify-center gap-2"></div>
 
         <div class="flex items-center justify-center gap-2">
-          <button onclick="submitRSVP('yes')" class="flex-1 text-xs py-2 px-3 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white font-medium transition-colors">
+          <button id="rsvp-btn-yes" onclick="submitRSVP('yes')" class="rsvp-btn flex-1 text-xs py-2 px-3 rounded-md font-medium border transition-colors">
             Asistiré
           </button>
-          <button onclick="submitRSVP('maybe')" class="flex-1 text-xs py-2 px-3 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium border border-slate-200 transition-colors">
+          <button id="rsvp-btn-maybe" onclick="submitRSVP('maybe')" class="rsvp-btn flex-1 text-xs py-2 px-3 rounded-md font-medium border transition-colors">
             En duda
           </button>
-          <button onclick="submitRSVP('no')" class="text-xs py-2 px-3 rounded-md text-slate-500 hover:text-rose-700 hover:bg-rose-50 border border-slate-200 transition-colors">
+          <button id="rsvp-btn-no" onclick="submitRSVP('no')" class="rsvp-btn flex-1 text-xs py-2 px-3 rounded-md font-medium border transition-colors">
             No voy
           </button>
         </div>
@@ -192,16 +254,19 @@
         </svg>
       </summary>
       <div class="p-3.5 pt-1 border-t border-slate-100">
-        <div class="text-[10px] uppercase font-semibold text-slate-400 mt-2 mb-1">Votá las opciones</div>
+        <div class="mt-2 mb-1.5">
+          <div class="text-xs font-semibold text-slate-800">1. Votá las opciones que te sirven</div>
+          <div class="text-[11px] text-slate-500">Podés votar más de una. Tocá de nuevo para sacar el voto.</div>
+        </div>
         <div id="date-options-container" class="space-y-2">
           <!-- Renderizado por JS -->
         </div>
 
         <!-- Proponer una fecha nueva -->
-        <div class="mt-3 p-2.5 rounded-lg border border-dashed border-slate-300 bg-slate-50/70 space-y-2">
+        <div class="mt-4 p-2.5 rounded-lg border border-dashed border-slate-300 bg-slate-50/70 space-y-2">
           <div>
-            <div class="text-xs font-semibold text-slate-800">¿Ninguna te sirve? Proponé otra</div>
-            <div class="text-[11px] text-slate-500">Se agrega como opción nueva para que el resto la vote.</div>
+            <div class="text-xs font-semibold text-slate-800">2. ¿Ninguna te sirve? Proponé otra</div>
+            <div class="text-[11px] text-slate-500">Elegí día y hora: se agrega como opción nueva para que el resto la vote.</div>
           </div>
           <div class="flex gap-1.5">
             <select id="new-date-day-select" class="flex-1 text-xs px-2 py-1.5 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
@@ -216,7 +281,8 @@
             </select>
             <input type="time" id="new-date-time-input"
                    class="w-28 text-xs px-2 py-1.5 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
-            <button onclick="proposeNewDate()" class="text-xs px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap">
+            <button id="propose-date-btn" onclick="proposeNewDate()" disabled
+                    class="text-xs px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap disabled:bg-slate-300 disabled:cursor-not-allowed">
               Proponer
             </button>
           </div>
@@ -285,20 +351,29 @@
         </svg>
       </summary>
       <div class="p-3.5 pt-1 border-t border-slate-100">
+        <!-- Lista de tareas existentes -->
+        <div class="mt-2 mb-1.5">
+          <div class="text-xs font-semibold text-slate-800">Tareas de la juntada</div>
+          <div class="text-[11px] text-slate-500">Tocá "+ Anotarme" para hacerte cargo de una.</div>
+        </div>
         <div id="tasks-container" class="space-y-1.5">
           <!-- Renderizado por JS -->
         </div>
 
-        <!-- Agregar cosa -->
-        <div class="mt-2.5 pt-2 border-t border-slate-100 space-y-1.5">
-          <div class="text-[10px] uppercase font-semibold text-slate-400">Anotar tarea nueva</div>
-          <input type="text" id="new-task-input" placeholder="Ej: Comprar hielo y carbón"
-                 class="w-full text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400">
+        <!-- Anotar una tarea nueva (separado de la lista) -->
+        <div class="mt-4 p-2.5 rounded-lg border border-dashed border-slate-300 bg-slate-50/70 space-y-2">
+          <div>
+            <div class="text-xs font-semibold text-slate-800">¿Falta algo? Anotá una tarea nueva</div>
+            <div class="text-[11px] text-slate-500">Escribila y elegí quién se encarga.</div>
+          </div>
+          <input type="text" id="new-task-input" maxlength="80" placeholder="Ej: Comprar hielo y carbón"
+                 class="w-full text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400">
           <div class="flex gap-1.5">
-            <select id="new-task-assignee-select" class="flex-1 text-xs px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
+            <select id="new-task-assignee-select" aria-label="Responsable de la tarea" class="flex-1 min-w-0 text-xs px-2 py-1.5 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
               <!-- Opciones de responsable por JS -->
             </select>
-            <button onclick="addNewCustomTask()" class="text-xs px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap">
+            <button id="add-task-btn" onclick="addNewCustomTask()" disabled
+                    class="text-xs px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap disabled:bg-slate-300 disabled:cursor-not-allowed">
               + Agregar
             </button>
           </div>
@@ -363,14 +438,19 @@
           <div class="text-[10px] uppercase font-semibold text-slate-400">Cargar gasto</div>
           
           <div class="flex flex-col sm:flex-row gap-1.5">
-            <input type="text" id="expense-desc-input" placeholder="Concepto (ej: Bebidas)" 
+            <input type="text" id="expense-desc-input" maxlength="80" placeholder="Concepto (ej: Bebidas)"
                    class="flex-1 text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400">
-            <input type="number" id="expense-amount-input" placeholder="Monto ($)" 
+            <input type="number" id="expense-amount-input" placeholder="Monto ($)" min="0" step="1" inputmode="decimal"
                    class="w-full sm:w-28 text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400">
-            <select id="expense-payer-select" class="text-xs px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
+            <select id="expense-payer-select" aria-label="Quién pagó" class="text-xs px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
               <!-- Opciones de pagador por JS -->
             </select>
           </div>
+
+          <!-- Gasto asociado a una tarea (pedido en el testing) -->
+          <select id="expense-task-select" aria-label="Tarea relacionada" class="w-full text-xs px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
+            <!-- Opciones de tareas por JS -->
+          </select>
 
           <!-- Selector de participantes de este gasto -->
           <div class="p-2 bg-slate-50/70 border border-slate-200 rounded-lg">
@@ -408,13 +488,23 @@
         <div class="flex items-center gap-2">
           <i data-lucide="share-2" class="w-4 h-4 text-slate-500"></i>
           <span class="font-semibold">Compartir</span>
-          <span class="text-[10px] text-slate-500 font-normal">WhatsApp y enlace</span>
+          <span class="text-[10px] text-slate-500 font-normal">Código, WhatsApp y enlace</span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </summary>
-      <div class="p-3.5 pt-2 border-t border-slate-100 bg-slate-900 text-white rounded-b-lg">
+      <div class="p-3.5 pt-2 border-t border-slate-100 bg-slate-900 text-white rounded-b-lg space-y-3">
+        <!-- Código de la juntada -->
+        <div class="text-center space-y-1">
+          <div class="text-[10px] uppercase font-semibold text-slate-400">Código para unirse</div>
+          <div id="share-join-code" class="text-2xl font-mono font-bold tracking-[0.35em] text-white"></div>
+          <div class="text-[11px] text-slate-400">Pasalo a tus amigos: lo escriben en "Tus Juntadas" y se suman.</div>
+          <button onclick="copyJoinCode()" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium inline-flex items-center gap-1">
+            <i data-lucide="copy" class="w-3 h-3"></i>
+            <span>Copiar código</span>
+          </button>
+        </div>
         <div class="flex gap-2">
           <button onclick="shareOnWhatsApp()" class="flex-1 text-xs py-2 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center justify-center gap-1.5 transition-colors">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
@@ -501,6 +591,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Avisos flotantes -->
+  <div id="toast-container" aria-live="polite"></div>
 
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>

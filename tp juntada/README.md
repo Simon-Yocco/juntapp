@@ -16,6 +16,7 @@ Este prototipo web aborda la fricción organizativa previa al coordinar un encue
 ## 🛠️ Estructura de la Solución
 
 * **Cuentas de usuario:** registro e inicio de sesión con usuario y contraseña. Quien entra por el link de invitación se registra y queda sumado a la juntada.
+* **Código de la juntada:** cada juntada tiene un código de 6 caracteres (ej: `K7MQ2X`); cualquiera que lo escriba en la app se suma.
 * **Panel multi-evento:** Permite gestionar múltiples juntadas y crear nuevas reuniones.
 * **Votación de fechas y confirmación en un toque**, con la opción de proponer una fecha nueva.
 * **Rotación equitativa de anfitrión:** Sugiere a quién le corresponde recibir según cuántas veces recibió cada uno, con opción de punto de encuentro neutro.

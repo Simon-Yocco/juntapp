@@ -42,6 +42,7 @@ function presentEvent(event, hostCounts, currentUserId) {
   return {
     id: event.id,
     title: event.title,
+    joinCode: event.joinCode,
     deadline: event.deadline,
     organizerId: event.organizerId,
     organizer: event.organizer.displayName,

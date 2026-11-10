@@ -13,6 +13,14 @@ const eventRepository = {
     return Event.findByPk(id, options);
   },
 
+  findByJoinCode(joinCode, options = {}) {
+    return Event.findOne({ where: { joinCode }, ...options });
+  },
+
+  async joinCodeExists(joinCode, options = {}) {
+    return (await Event.count({ where: { joinCode }, ...options })) > 0;
+  },
+
   create(data, options = {}) {
     return Event.create(data, options);
   },

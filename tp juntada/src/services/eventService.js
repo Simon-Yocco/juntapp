@@ -9,7 +9,10 @@ const { runInTransaction } = require("../repositories/transaction");
 const { presentEvent, presentEventSummary } = require("../views/eventPresenter");
 const { requireEvent, requireMember } = require("./accessService");
 const { requireText } = require("../utils/validators");
-const { BadRequestError, ForbiddenError } = require("../errors/AppError");
+const { generateJoinCode, normalizeJoinCode, isValidJoinCode } = require("../utils/joinCode");
+const { BadRequestError, ForbiddenError, NotFoundError } = require("../errors/AppError");
+
+const MAX_CODE_ATTEMPTS = 10;
 
 const DEADLINE_HOURS = [4, 6, 12, 24];
 const RSVP_STATUSES = ["yes", "maybe", "no"];
@@ -51,6 +54,7 @@ async function createEventRecord({ organizerId, title, dateLabels, deadline, tas
   return runInTransaction(async (transaction) => {
     const event = await eventRepository.create({
       title,
+      joinCode: await generateUniqueJoinCode({ transaction }),
       deadline,
       organizerId,
       hostMode: "house",
@@ -93,11 +97,33 @@ async function create(userId, { title, dates, hours }) {
   return buildView(event.id, userId);
 }
 
+// Genera un código que no use ninguna otra juntada
+async function generateUniqueJoinCode(options = {}) {
+  for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
+    const code = generateJoinCode();
+    if (!(await eventRepository.joinCodeExists(code, options))) return code;
+  }
+  throw new Error("No se pudo generar un código único para la juntada");
+}
+
 // Sumarse desde el link de invitación (si ya era integrante, no cambia nada)
 async function join(eventId, userId) {
   const event = await requireEvent(eventId);
   await memberRepository.findOrCreate(event.id, userId);
   return buildView(event.id, userId);
+}
+
+// Sumarse escribiendo el código de la juntada (si ya era integrante, no cambia nada)
+async function joinByCode(userId, rawCode) {
+  const code = normalizeJoinCode(rawCode);
+  if (!isValidJoinCode(code)) throw new BadRequestError("El código tiene 6 caracteres, por ejemplo K7MQ2X");
+
+  const event = await eventRepository.findByJoinCode(code);
+  if (!event) throw new NotFoundError("No hay ninguna juntada con ese código. Revisalo y probá de nuevo");
+
+  const [, created] = await memberRepository.findOrCreate(event.id, userId);
+  const view = await buildView(event.id, userId);
+  return { ...view, justJoined: created };
 }
 
 async function remove(eventId, userId) {
@@ -122,6 +148,7 @@ module.exports = {
   createEventRecord,
   create,
   join,
+  joinByCode,
   remove,
   setRsvp
 };

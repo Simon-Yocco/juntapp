@@ -18,7 +18,8 @@ Grupo: Simon Yocco, Lucas Martino, Mateo Bertin, Pedro Ravanelli, Salvador Tosar
 - **Sede:** modo casa (anfitrión) o punto neutro (Bar / Plaza). Rotación equitativa: le toca al integrante que menos veces fue anfitrión en otras juntadas (sin contar al actual; en empate, el que se sumó primero). Se puede ceder el turno o elegir a mano. El organizador es el anfitrión inicial.
 - **Tareas:** cada tarea tiene un cupo máximo de responsables. Al crearla se puede asignar un responsable (cualquier integrante) o dejarla sin asignar. La tarea de limpieza (`isPact`) es el compromiso de orden mutuo: existe siempre, para no recargar al anfitrión.
 - **Gastos:** el monto es siempre > 0. Cada gasto tiene quién pagó y entre quiénes se divide (por defecto, todos). La liquidación minimiza la cantidad de transferencias (greedy deudores/acreedores) y redondea a pesos. El costo por persona se promedia sobre los confirmados.
-- **Compartir:** resumen para WhatsApp con fecha, sede, confirmados, gastos y transferencias, más el link a la juntada.
+- **Compartir:** resumen para WhatsApp con fecha, sede, confirmados, gastos y transferencias, más el link y el código de la juntada.
+- **Código para unirse:** cada juntada tiene un código único de 6 caracteres (`A-Z` y `2-9`, sin I, O, 0 ni 1 para no confundirlos), generado al crearla. Cualquier usuario con sesión lo escribe en "Tus Juntadas" y queda como integrante (`POST /api/events/join-by-code`). Al escribirlo se ignoran mayúsculas/minúsculas, espacios y guiones. Si ya era integrante, no cambia nada.
 
 ## Decisiones tomadas (no re-discutir)
 - **Backend Node + Express con MySQL** (ya implementado) (el grupo usa MySQL Workbench), usando **Sequelize** como ORM (modelos y asociaciones en Sequelize, driver `mysql2`; nada de SQL armado a mano).
@@ -30,19 +31,20 @@ Grupo: Simon Yocco, Lucas Martino, Mateo Bertin, Pedro Ravanelli, Salvador Tosar
 Documentos: `Plan_de_testing_JUNTAPP.pdf` y `Informe_resultados_testing_JUNTAPP.pdf`.
 Las 4 tareas del test: confirmar asistencia, proponer otro día y horario, anotar "comprar hielo y carbón" asignada a un amigo, registrar un gasto de $12.000 en bebidas.
 
-**Hecho:**
+**Hecho (todas las mejoras del informe):**
 - Barra de navegación por secciones.
-- Proponer fecha nueva, separado de la votación.
-- Asignar responsable al anotar una tarea.
+- Cartel visible con el estado de mi asistencia, botón elegido resaltado y aviso al confirmar.
+- Votación de fechas y "proponer otra" como pasos 1 y 2 separados. El botón de proponer está desactivado hasta tener día y hora.
+- Lista de tareas separada del recuadro para anotar una nueva (con responsable). El botón de agregar está desactivado si el campo está vacío.
+- El monto del gasto no admite negativos (`min="0"`, bloquea "-" y corrige a 0).
+- Gasto asociado a una tarea (opcional). Al elegirla, completa el concepto, y la tarea muestra cuánto se gastó.
 
-**Pendiente:**
-- Cartel visible al confirmar la asistencia.
-- Botón de proponer fecha desactivado si el campo está vacío.
-- Separar mejor la lista de tareas del formulario para anotar una nueva.
-- Que el input del monto no permita negativos.
-- Asociar un gasto a una tarea.
+**Próximo paso:** volver a testear con usuarios nuevos para ver si se resolvieron los problemas.
 
-La base ya tiene `expenses.task_id` para asociar un gasto a una tarea; falta la parte del front.
+## Convenciones del front
+- Nada de `alert()`: los mensajes van con `showToast(mensaje, "success" | "error" | "info")`.
+- `flash(id)` resalta un bloque que acaba de cambiar.
+- Los botones de un formulario quedan desactivados hasta que los datos estén completos (`updateFormButtons`).
 
 ## Estructura y cómo correr
 ```
@@ -69,6 +71,7 @@ tp juntada/
 ```
 - Desde `tp juntada/`: `npm install`, copiar `.env.example` a `.env`, `npm start` → http://localhost:3000
 - `npm run seed`: carga a los 6 integrantes (contraseña `juntapp123`) y dos juntadas de ejemplo.
+- **Cambios en los modelos:** `sequelize.sync()` crea las tablas que faltan, pero no agrega columnas a las que ya existen. Si se agrega un campo a un modelo, hay que volver a correr `npm run seed`, que borra todo, o hacer el `ALTER TABLE` a mano en Workbench.
 
 ## Arquitectura en capas (respetarla siempre)
 ```

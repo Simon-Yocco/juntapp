@@ -14,6 +14,8 @@ async function init() {
   setupAuthForm();
   initCountdown();
   setupSectionNavObserver();
+  setupFormHelpers();
+  setupJoinCodeForm();
   window.addEventListener("hashchange", handleHash);
 
   try {
@@ -49,13 +51,43 @@ function refreshIcons() {
   if (window.lucide) lucide.createIcons();
 }
 
+const TOAST_ICONS = { success: "check-circle-2", error: "alert-circle", info: "info" };
+
+// Aviso flotante que desaparece solo. type: "success" | "error" | "info"
+function showToast(message, type = "info", duration = 3200) {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute("role", type === "error" ? "alert" : "status");
+  toast.innerHTML = `<i data-lucide="${TOAST_ICONS[type] || "info"}" class="w-4 h-4 shrink-0 mt-px"></i><span>${escapeHtml(message)}</span>`;
+  container.appendChild(toast);
+  refreshIcons();
+
+  setTimeout(() => {
+    toast.classList.add("is-leaving");
+    toast.addEventListener("animationend", () => toast.remove(), { once: true });
+  }, duration);
+}
+
+// Resalta un bloque un momento para que se note que cambió
+function flash(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.classList.remove("flash-highlight");
+  void el.offsetWidth; // reinicia la animación
+  el.classList.add("flash-highlight");
+}
+
 function handleApiError(err) {
   if (err.status === 401) {
     setCurrentUser(null);
     showAuthView();
+    showToast("Tu sesión terminó, iniciá sesión de nuevo", "info");
     return;
   }
-  alert(err.message);
+  showToast(err.message, "error");
 }
 
 // Ejecuta una acción sobre la juntada abierta y re-renderiza con la respuesta del servidor
@@ -85,12 +117,44 @@ function setCurrentUser(user) {
   if (headerName) headerName.textContent = user ? user.displayName : "";
 }
 
+const AUTH_TEXTS = {
+  login: {
+    title: "Organizá tus juntadas",
+    subtitle: "Fecha, sede, tareas y cuentas, todo en un solo lugar",
+    submit: "Iniciar sesión",
+    loading: "Ingresando...",
+    switchText: "¿No tenés cuenta?",
+    switchBtn: "Creá una",
+    passwordPlaceholder: "Tu contraseña"
+  },
+  register: {
+    title: "Creá tu cuenta",
+    subtitle: "Es gratis y tarda un minuto",
+    submit: "Crear cuenta",
+    loading: "Creando cuenta...",
+    switchText: "¿Ya tenés cuenta?",
+    switchBtn: "Iniciá sesión",
+    passwordPlaceholder: "Mínimo 6 caracteres"
+  }
+};
+
 function setAuthMode(mode) {
   authMode = mode;
   const isRegister = mode === "register";
+  const texts = AUTH_TEXTS[mode];
+
   document.getElementById("auth-displayname-field")?.classList.toggle("hidden", !isRegister);
-  document.getElementById("auth-submit").textContent = isRegister ? "Crear cuenta" : "Iniciar sesión";
-  document.getElementById("auth-password").autocomplete = isRegister ? "new-password" : "current-password";
+  document.getElementById("auth-username-hint")?.classList.toggle("hidden", !isRegister);
+  document.getElementById("auth-password-hint")?.classList.toggle("hidden", !isRegister);
+  document.getElementById("auth-title").textContent = texts.title;
+  document.getElementById("auth-subtitle").textContent = texts.subtitle;
+  document.getElementById("auth-submit").textContent = texts.submit;
+  document.getElementById("auth-switch-text").textContent = texts.switchText;
+  document.getElementById("auth-switch-btn").textContent = texts.switchBtn;
+
+  const passwordInput = document.getElementById("auth-password");
+  passwordInput.autocomplete = isRegister ? "new-password" : "current-password";
+  passwordInput.placeholder = texts.passwordPlaceholder;
 
   const activeClasses = ["bg-white", "text-slate-900", "shadow-sm"];
   const inactiveClasses = ["text-slate-500"];
@@ -99,48 +163,89 @@ function setAuthMode(mode) {
   [[loginTab, !isRegister], [registerTab, isRegister]].forEach(([tab, active]) => {
     activeClasses.forEach(c => tab.classList.toggle(c, active));
     inactiveClasses.forEach(c => tab.classList.toggle(c, !active));
+    tab.setAttribute("aria-selected", String(active));
   });
   showAuthError("");
 }
 
-function showAuthError(message) {
+function togglePasswordVisibility() {
+  const input = document.getElementById("auth-password");
+  const button = document.getElementById("auth-password-toggle");
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  button.title = show ? "Ocultar contraseña" : "Mostrar contraseña";
+  button.innerHTML = `<i data-lucide="${show ? "eye-off" : "eye"}" class="w-3.5 h-3.5"></i>`;
+  refreshIcons();
+}
+
+// Muestra el error y marca en rojo el campo que lo causó
+function showAuthError(message, fieldId) {
   const el = document.getElementById("auth-error");
   if (!el) return;
   el.textContent = message;
   el.classList.toggle("hidden", !message);
+  document.querySelectorAll("#auth-form .auth-input").forEach(input => {
+    input.classList.toggle("has-error", !!message && input.id === fieldId);
+  });
+  if (fieldId) document.getElementById(fieldId)?.focus();
+}
+
+// Mismas reglas que el servidor, para avisar antes de enviar
+function validateAuthForm({ username, password, displayName }) {
+  if (!username) return ["Ingresá tu usuario", "auth-username"];
+  if (authMode === "register") {
+    if (!/^[a-z0-9_.]{3,30}$/.test(username.toLowerCase())) {
+      return ["El usuario debe tener entre 3 y 30 caracteres: letras, números, punto o guion bajo", "auth-username"];
+    }
+    if (!displayName) return ["Ingresá tu nombre", "auth-displayname"];
+  }
+  if (!password) return ["Ingresá tu contraseña", "auth-password"];
+  if (authMode === "register" && password.length < 6) {
+    return ["La contraseña debe tener al menos 6 caracteres", "auth-password"];
+  }
+  return null;
 }
 
 function setupAuthForm() {
   setAuthMode("login");
+
+  // Al escribir, se borra el error
+  document.querySelectorAll("#auth-form .auth-input").forEach(input => {
+    input.addEventListener("input", () => showAuthError(""));
+  });
+
   document.getElementById("auth-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const username = document.getElementById("auth-username").value.trim();
-    const password = document.getElementById("auth-password").value;
-    const displayName = document.getElementById("auth-displayname").value.trim();
+    const data = {
+      username: document.getElementById("auth-username").value.trim(),
+      password: document.getElementById("auth-password").value,
+      displayName: document.getElementById("auth-displayname").value.trim()
+    };
 
-    if (!username || !password) {
-      showAuthError("Completá usuario y contraseña");
-      return;
-    }
-    if (authMode === "register" && !displayName) {
-      showAuthError("Completá tu nombre");
+    const invalid = validateAuthForm(data);
+    if (invalid) {
+      showAuthError(...invalid);
       return;
     }
 
     const submitBtn = document.getElementById("auth-submit");
     submitBtn.disabled = true;
+    submitBtn.textContent = AUTH_TEXTS[authMode].loading;
     try {
       const { user } = authMode === "register"
-        ? await api.post("/auth/register", { username, password, displayName })
-        : await api.post("/auth/login", { username, password });
+        ? await api.post("/auth/register", data)
+        : await api.post("/auth/login", { username: data.username, password: data.password });
       document.getElementById("auth-password").value = "";
       showAuthError("");
       setCurrentUser(user);
+      showToast(authMode === "register" ? `¡Bienvenido/a, ${user.displayName}!` : `Hola, ${user.displayName}`, "success");
       handleHash();
     } catch (err) {
-      showAuthError(err.message);
+      const field = err.status === 409 ? "auth-username" : (err.status === 401 ? "auth-password" : null);
+      showAuthError(err.message, field);
     } finally {
       submitBtn.disabled = false;
+      submitBtn.textContent = AUTH_TEXTS[authMode].submit;
     }
   });
 }
@@ -216,7 +321,7 @@ async function openEventDetail(eventId, updateHash = true) {
     }
   } catch (err) {
     if (err.status === 404) {
-      alert(err.message);
+      showToast(err.message, "error");
       showListView();
       return;
     }
@@ -347,20 +452,65 @@ function renderApp() {
   refreshIcons();
 }
 
-const RSVP_LABELS = { yes: "Asistís", maybe: "Estás en duda", no: "No vas" };
+// Cartel de asistencia y estilo de cada botón según mi respuesta
+const RSVP_UI = {
+  none: {
+    banner: "border-slate-200 bg-slate-50 text-slate-600",
+    icon: "help-circle",
+    text: (name) => `<strong>${name}</strong>, ¿vas a ir? Todavía no respondiste`
+  },
+  yes: {
+    banner: "border-emerald-300 bg-emerald-50 text-emerald-800",
+    icon: "check-circle-2",
+    text: () => "<strong>Confirmaste tu asistencia.</strong> ¡Te esperamos!",
+    button: "bg-emerald-700 border-emerald-700 text-white"
+  },
+  maybe: {
+    banner: "border-amber-300 bg-amber-50 text-amber-800",
+    icon: "clock",
+    text: () => "<strong>Marcaste que estás en duda.</strong> Confirmá cuando sepas",
+    button: "bg-amber-500 border-amber-500 text-white"
+  },
+  no: {
+    banner: "border-rose-300 bg-rose-50 text-rose-800",
+    icon: "x-circle",
+    text: () => "<strong>Avisaste que no vas.</strong> Podés cambiarlo cuando quieras",
+    button: "bg-rose-600 border-rose-600 text-white"
+  }
+};
+const RSVP_BUTTON_IDLE = "bg-white border-slate-200 text-slate-700 hover:bg-slate-50";
+const RSVP_TOASTS = {
+  yes: ["¡Listo! Confirmaste tu asistencia", "success"],
+  maybe: ["Quedaste como \"En duda\"", "info"],
+  no: ["Avisaste que no vas", "info"]
+};
+
+function myStatus() {
+  return currentEvent.attendees.find(a => a.userId === currentUser.id)?.status || null;
+}
 
 function renderHeader() {
   document.getElementById("event-title").textContent = currentEvent.title;
+  document.getElementById("event-join-code").textContent = currentEvent.joinCode;
+  document.getElementById("share-join-code").textContent = currentEvent.joinCode;
   document.getElementById("event-organizer").textContent = `Organiza ${currentEvent.organizer}`;
   document.getElementById("delete-event-btn")?.classList.toggle("hidden", !currentEvent.isOrganizer);
 
-  const me = currentEvent.attendees.find(a => a.userId === currentUser.id);
-  const statusEl = document.getElementById("rsvp-current-status");
-  if (statusEl) {
-    statusEl.innerHTML = me?.status
-      ? `Respondés como <strong>${escapeHtml(currentUser.displayName)}</strong>: ${RSVP_LABELS[me.status]}`
-      : `Respondés como <strong>${escapeHtml(currentUser.displayName)}</strong>. ¿Vas a ir?`;
+  const status = myStatus();
+  const ui = RSVP_UI[status || "none"];
+  const banner = document.getElementById("rsvp-banner");
+  if (banner) {
+    banner.className = `rounded-lg border p-2.5 text-xs flex items-center justify-center gap-2 ${ui.banner}`;
+    banner.innerHTML = `<i data-lucide="${ui.icon}" class="w-4 h-4 shrink-0"></i><span>${ui.text(escapeHtml(currentUser.displayName))}</span>`;
   }
+
+  ["yes", "maybe", "no"].forEach(option => {
+    const button = document.getElementById(`rsvp-btn-${option}`);
+    if (!button) return;
+    const selected = status === option;
+    button.className = `rsvp-btn flex-1 text-xs py-2 px-3 rounded-md font-medium border transition-colors ${selected ? RSVP_UI[option].button : RSVP_BUTTON_IDLE}`;
+    button.setAttribute("aria-pressed", String(selected));
+  });
 }
 
 function renderDateVoting() {
@@ -447,6 +597,17 @@ function renderHostHistory() {
   }).join("");
 }
 
+// Total de gastos asociados a una tarea
+function spentOnTask(taskId) {
+  return currentEvent.expenses
+    .filter(e => e.taskId === taskId)
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+}
+
+function taskTitleOf(taskId) {
+  return currentEvent.tasks.find(t => t.id === taskId)?.title || null;
+}
+
 function renderChecklist() {
   const container = document.getElementById("tasks-container");
   if (!container) return;
@@ -457,15 +618,22 @@ function renderChecklist() {
     tasksSummaryEl.textContent = `· ${assignedCount}/${currentEvent.tasks.length} asignadas`;
   }
 
+  if (currentEvent.tasks.length === 0) {
+    container.innerHTML = `<div class="text-[11px] text-slate-400 italic py-1">Todavía no hay tareas. Anotá la primera abajo.</div>`;
+    return;
+  }
+
   container.innerHTML = currentEvent.tasks.map(task => {
     const isFull = task.assignedTo.length >= (task.maxAssignees || 1);
     const userIsAssigned = task.assignedTo.includes(currentUser.id);
+    const spent = spentOnTask(task.id);
 
     return `
-      <div class="flex items-center justify-between p-2.5 rounded-lg border ${task.isPact ? 'bg-slate-50/70 border-slate-300' : 'bg-white border-slate-200'}">
-        <div class="flex items-center gap-2">
+      <div class="flex items-center justify-between gap-2 p-2.5 rounded-lg border ${task.isPact ? 'bg-slate-50/70 border-slate-300' : 'bg-white border-slate-200'}">
+        <div class="flex items-center gap-2 flex-wrap min-w-0">
           <span class="text-xs font-medium text-slate-800">${escapeHtml(task.title)}</span>
           ${task.isPact ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">Limpieza</span>' : ''}
+          ${spent > 0 ? `<span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200" title="Gastado en esta tarea">${formatCurrency(spent)}</span>` : ''}
         </div>
 
         <div class="flex items-center gap-1.5 flex-wrap justify-end">
@@ -477,8 +645,8 @@ function renderChecklist() {
           `).join("")}
 
           ${!isFull && !userIsAssigned ? `
-            <button onclick="claimTask(${task.id})" class="text-[11px] px-2 py-0.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium">
-              + Asignarme
+            <button onclick="claimTask(${task.id})" class="text-[11px] px-2 py-0.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium whitespace-nowrap">
+              + Anotarme
             </button>
           ` : ''}
         </div>
@@ -576,6 +744,16 @@ function renderExpensesSection() {
     `).join("");
   }
 
+  // Selector de tarea relacionada (opcional)
+  const taskSelect = document.getElementById("expense-task-select");
+  if (taskSelect) {
+    const previous = taskSelect.value;
+    taskSelect.innerHTML =
+      `<option value="">Relacionado con una tarea: ninguna (opcional)</option>` +
+      currentEvent.tasks.map(t => `<option value="${t.id}">Tarea: ${escapeHtml(t.title)}</option>`).join("");
+    if (currentEvent.tasks.some(t => String(t.id) === previous)) taskSelect.value = previous;
+  }
+
   // Checkboxes de integrantes para el nuevo gasto
   if (participantsContainer) {
     participantsContainer.innerHTML = currentEvent.attendees.map(a => `
@@ -596,6 +774,7 @@ function renderExpensesSection() {
         const isAll = parts.length >= currentEvent.attendees.length;
         const participantsLabel = isAll ? "Todos los integrantes" : parts.map(nameOf).join(", ");
         const canDelete = [exp.createdById, exp.payer, currentEvent.organizerId].includes(currentUser.id);
+        const taskTitle = exp.taskId ? taskTitleOf(exp.taskId) : null;
 
         return `
           <div class="p-2 rounded border border-slate-200 bg-white text-xs space-y-1">
@@ -617,6 +796,12 @@ function renderExpensesSection() {
               <span class="text-slate-400">Participan (${parts.length}):</span>
               <span class="text-slate-700 truncate max-w-[340px]">${escapeHtml(participantsLabel)}</span>
             </div>
+            ${taskTitle ? `
+              <div class="text-[11px] text-slate-500 flex items-center gap-1">
+                <i data-lucide="link" class="w-3 h-3 text-slate-400"></i>
+                <span>Tarea: <span class="text-slate-700">${escapeHtml(taskTitle)}</span></span>
+              </div>
+            ` : ''}
           </div>
         `;
       }).join("");
@@ -725,22 +910,28 @@ async function addExpenseFromForm() {
     .map(cb => Number(cb.value));
 
   if (!description) {
-    alert("Ingresá el concepto del gasto (ej: Bebidas)");
+    showToast("Ingresá el concepto del gasto (ej: Bebidas)", "error");
     return;
   }
   if (!amount || amount <= 0) {
-    alert("Ingresá un monto válido");
+    showToast("Ingresá un monto mayor a 0", "error");
     return;
   }
   if (participantIds.length === 0) {
-    alert("Tenés que seleccionar al menos un integrante que participe de este gasto");
+    showToast("Elegí al menos un integrante para dividir el gasto", "error");
     return;
   }
 
-  const ok = await eventAction("POST", "/expenses", { description, amount, payerId, participantIds });
+  const taskSelect = document.getElementById("expense-task-select");
+  const taskId = taskSelect?.value ? Number(taskSelect.value) : null;
+
+  const ok = await eventAction("POST", "/expenses", { description, amount, payerId, participantIds, taskId });
   if (ok) {
     descInput.value = "";
     amountInput.value = "";
+    if (taskSelect) taskSelect.value = "";
+    showToast(`Gasto cargado: ${description} (${formatCurrency(amount)})`, "success");
+    flash("settlement-container");
   }
 }
 
@@ -750,8 +941,12 @@ function deleteExpense(expenseId) {
 
 // ----------------- ACCIONES -----------------
 
-function submitRSVP(status) {
-  eventAction("PUT", "/rsvp", { status });
+async function submitRSVP(status) {
+  const ok = await eventAction("PUT", "/rsvp", { status });
+  if (ok) {
+    showToast(...RSVP_TOASTS[status]);
+    flash("rsvp-banner");
+  }
 }
 
 function toggleDateVote(dateId) {
@@ -766,7 +961,7 @@ async function proposeNewDate() {
   const time = timeInput?.value;
 
   if (!day || !time) {
-    alert("Elegí un día y un horario para proponer");
+    showToast("Elegí un día y un horario para proponer", "error");
     return;
   }
 
@@ -774,6 +969,8 @@ async function proposeNewDate() {
   if (ok) {
     daySelect.value = "";
     timeInput.value = "";
+    updateFormButtons();
+    showToast(`Propusiste ${day} ${time} hs y quedó votada`, "success");
   }
 }
 
@@ -790,7 +987,7 @@ async function addNewCustomTask() {
   const assigneeSelect = document.getElementById("new-task-assignee-select");
   const title = input?.value.trim();
   if (!title) {
-    alert("Escribí la tarea primero (ej: Comprar hielo y carbón)");
+    showToast("Escribí la tarea primero (ej: Comprar hielo y carbón)", "error");
     return;
   }
 
@@ -799,7 +996,54 @@ async function addNewCustomTask() {
   if (ok) {
     input.value = "";
     if (assigneeSelect) assigneeSelect.value = "";
+    updateFormButtons();
+    showToast(assigneeId ? `Tarea anotada para ${nameOf(assigneeId)}` : "Tarea anotada", "success");
   }
+}
+
+// ----------------- AYUDAS DE LOS FORMULARIOS -----------------
+
+// Los botones de proponer fecha y agregar tarea solo se activan con los datos completos
+function updateFormButtons() {
+  const day = document.getElementById("new-date-day-select")?.value;
+  const time = document.getElementById("new-date-time-input")?.value;
+  const proposeBtn = document.getElementById("propose-date-btn");
+  if (proposeBtn) proposeBtn.disabled = !(day && time);
+
+  const taskTitle = document.getElementById("new-task-input")?.value.trim();
+  const addTaskBtn = document.getElementById("add-task-btn");
+  if (addTaskBtn) addTaskBtn.disabled = !taskTitle;
+}
+
+function setupFormHelpers() {
+  ["new-date-day-select", "new-date-time-input", "new-task-input"].forEach(id => {
+    const el = document.getElementById(id);
+    el?.addEventListener("input", updateFormButtons);
+    el?.addEventListener("change", updateFormButtons);
+  });
+
+  // Enter en el campo de tarea la agrega
+  document.getElementById("new-task-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !document.getElementById("add-task-btn").disabled) addNewCustomTask();
+  });
+
+  // El monto nunca puede quedar negativo (ni con las flechitas ni escribiendo "-")
+  const amountInput = document.getElementById("expense-amount-input");
+  amountInput?.addEventListener("keydown", (e) => {
+    if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
+  });
+  amountInput?.addEventListener("input", () => {
+    if (amountInput.value !== "" && Number(amountInput.value) < 0) amountInput.value = "0";
+  });
+
+  // Al elegir una tarea, si el concepto está vacío se completa con el nombre de la tarea
+  document.getElementById("expense-task-select")?.addEventListener("change", (e) => {
+    const descInput = document.getElementById("expense-desc-input");
+    const title = taskTitleOf(Number(e.target.value));
+    if (title && descInput && !descInput.value.trim()) descInput.value = title;
+  });
+
+  updateFormButtons();
 }
 
 function spinHostRoulette() {
@@ -873,7 +1117,8 @@ function buildWhatsAppMessage() {
          `${hostText}\n` +
          `Confirmados (${confirmed.length}): ${confirmed.join(", ") || 'Ninguno'}\n` +
          expensesText +
-         `\nConfirmar o ver detalles en: ${eventShareUrl()}`;
+         `\nConfirmar o ver detalles en: ${eventShareUrl()}` +
+         `\nO sumate desde la app con el código: *${currentEvent.joinCode}*`;
 }
 
 function shareOnWhatsApp() {
@@ -881,9 +1126,58 @@ function shareOnWhatsApp() {
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
 }
 
+function copyJoinCode() {
+  if (!currentEvent) return;
+  navigator.clipboard.writeText(currentEvent.joinCode).then(
+    () => showToast(`Código ${currentEvent.joinCode} copiado`, "success"),
+    () => showToast(`El código es ${currentEvent.joinCode}`, "info")
+  );
+}
+
+// ----------------- UNIRSE CON CÓDIGO -----------------
+
+const JOIN_CODE_PATTERN = /^[A-HJ-NP-Z2-9]{6}$/;
+
+function normalizeJoinCode(value) {
+  return String(value || "").toUpperCase().replace(/[\s-]/g, "");
+}
+
+function setupJoinCodeForm() {
+  const form = document.getElementById("join-code-form");
+  const input = document.getElementById("join-code-input");
+  const button = document.getElementById("join-code-btn");
+  if (!form || !input || !button) return;
+
+  input.addEventListener("input", () => {
+    input.value = input.value.toUpperCase();
+    button.disabled = !JOIN_CODE_PATTERN.test(normalizeJoinCode(input.value));
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const code = normalizeJoinCode(input.value);
+    if (!JOIN_CODE_PATTERN.test(code)) {
+      showToast("El código tiene 6 caracteres, por ejemplo K7MQ2X", "error");
+      return;
+    }
+
+    button.disabled = true;
+    try {
+      const event = await api.post("/events/join-by-code", { code });
+      input.value = "";
+      showToast(event.justJoined ? `¡Te sumaste a "${event.title}"!` : `Ya eras parte de "${event.title}"`, "success");
+      openEventDetail(event.id);
+    } catch (err) {
+      handleApiError(err);
+      button.disabled = false;
+      input.focus();
+    }
+  });
+}
+
 function copyShareLink() {
   navigator.clipboard.writeText(eventShareUrl()).then(() => {
-    alert("Enlace copiado");
+    showToast("Enlace copiado. Pegalo en el grupo para invitar", "success");
   });
 }
 
@@ -936,7 +1230,7 @@ async function createNewEventFromForm() {
   const hours = Number(document.getElementById("new-hours-input")?.value || 6);
 
   if (!title) {
-    alert("Ponele un título a la juntada");
+    showToast("Ponele un título a la juntada", "error");
     return;
   }
 

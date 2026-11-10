@@ -20,6 +20,10 @@ async function join(req, res) {
   res.json(await eventService.join(req.params.id, req.user.id));
 }
 
+async function joinByCode(req, res) {
+  res.json(await eventService.joinByCode(req.user.id, req.body?.code));
+}
+
 async function remove(req, res) {
   await eventService.remove(req.params.id, req.user.id);
   res.json({ ok: true });
@@ -29,4 +33,4 @@ async function setRsvp(req, res) {
   res.json(await eventService.setRsvp(req.params.id, req.user.id, req.body?.status));
 }
 
-module.exports = { list, create, get, join, remove, setRsvp };
+module.exports = { list, create, get, join, joinByCode, remove, setRsvp };

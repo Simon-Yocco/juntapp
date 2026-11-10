@@ -32,6 +32,13 @@ const Event = sequelize.define("Event", {
   // UUID para que el link de invitación no se pueda adivinar
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   title: { type: DataTypes.STRING(80), allowNull: false, validate: { len: [1, 80] } },
+  // Código corto para que cualquier usuario se una escribiéndolo (ej: K7MQ2X)
+  joinCode: {
+    type: DataTypes.STRING(6),
+    allowNull: false,
+    unique: true,
+    validate: { is: /^[A-HJ-NP-Z2-9]{6}$/ }
+  },
   deadline: { type: DataTypes.DATE, allowNull: false },
   hostMode: { type: DataTypes.ENUM("house", "neutral"), allowNull: false, defaultValue: "house" },
   neutralSpot: { type: DataTypes.STRING(60), allowNull: true }
