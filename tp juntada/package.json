@@ -1,12 +1,29 @@
 {
-  "name": "sale-juntada",
-  "version": "1.0.0",
+  "name": "juntapp",
+  "version": "2.0.0",
   "description": "Solución digital al reto de Design Thinking: Juntadas con amigos",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node src/seed.js"
   },
-  "keywords": ["design-thinking", "juntadas", "argentina", "amigos", "whatsapp"],
+  "keywords": [
+    "design-thinking",
+    "juntadas",
+    "argentina",
+    "amigos",
+    "whatsapp"
+  ],
   "author": "Simon Yocco, Lucas Martino, Mateo Bertin, Pedro Ravanelli, Salvador Tosar, Robertino Joffre",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.6",
+    "sequelize": "^6.37.8"
+  }
 }

@@ -38,16 +38,65 @@
         <button onclick="openDesignThinkingModal()" class="text-[11px] px-2 py-1 rounded text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors">
           Informe DT
         </button>
-        <button onclick="openNewEventModal()" class="text-[11px] px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors flex items-center gap-1">
-          <i data-lucide="plus" class="w-3 h-3"></i>
-          <span>Nueva Juntada</span>
-        </button>
+        <div id="header-user" class="hidden items-center gap-1.5">
+          <button onclick="openNewEventModal()" class="text-[11px] px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors flex items-center gap-1">
+            <i data-lucide="plus" class="w-3 h-3"></i>
+            <span>Nueva</span>
+          </button>
+          <button onclick="logout()" title="Cerrar sesión" class="text-[11px] px-2 py-1 rounded text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors flex items-center gap-1">
+            <i data-lucide="log-out" class="w-3 h-3"></i>
+            <span id="header-user-name" class="max-w-[90px] truncate"></span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
+  <!-- VISTA 0: INICIO DE SESIÓN / REGISTRO -->
+  <main id="view-auth" class="max-w-sm mx-auto px-4 pt-10 hidden">
+    <section class="clean-card p-5 space-y-4">
+      <div class="text-center space-y-1">
+        <h2 class="text-base font-bold text-slate-900">Organizá tus juntadas</h2>
+        <p id="auth-subtitle" class="text-xs text-slate-500">Iniciá sesión o creá tu cuenta para empezar</p>
+      </div>
+
+      <div id="auth-invite-notice" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md p-2.5 text-center">
+        Te invitaron a una juntada. Iniciá sesión o creá tu cuenta para sumarte.
+      </div>
+
+      <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-lg text-xs font-medium">
+        <button id="auth-tab-login" onclick="setAuthMode('login')" class="py-1.5 rounded-md">Iniciar sesión</button>
+        <button id="auth-tab-register" onclick="setAuthMode('register')" class="py-1.5 rounded-md">Crear cuenta</button>
+      </div>
+
+      <form id="auth-form" class="space-y-2.5 text-xs" novalidate>
+        <div>
+          <label for="auth-username" class="block text-slate-600 mb-1 font-medium">Usuario</label>
+          <input type="text" id="auth-username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ej: simon"
+                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 focus:bg-white">
+        </div>
+        <div id="auth-displayname-field" class="hidden">
+          <label for="auth-displayname" class="block text-slate-600 mb-1 font-medium">Tu nombre (lo ven tus amigos)</label>
+          <input type="text" id="auth-displayname" autocomplete="name" placeholder="ej: Simon Yocco"
+                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 focus:bg-white">
+        </div>
+        <div>
+          <label for="auth-password" class="block text-slate-600 mb-1 font-medium">Contraseña</label>
+          <input type="password" id="auth-password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"
+                 class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 focus:bg-white">
+        </div>
+
+        <div id="auth-error" class="hidden text-rose-700 bg-rose-50 border border-rose-200 rounded-md p-2"></div>
+
+        <button type="submit" id="auth-submit" class="w-full py-2 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors disabled:opacity-60">
+          Iniciar sesión
+        </button>
+      </form>
+    </section>
+  </main>
+
   <!-- VISTA 1: LISTA PRINCIPAL DE JUNTADAS (DASHBOARD) -->
-  <main id="view-events-list" class="max-w-xl mx-auto px-4 pt-6 space-y-4">
+  <main id="view-events-list" class="max-w-xl mx-auto px-4 pt-6 space-y-4 hidden">
     <!-- Encabezado de la lista -->
     <div class="flex items-center justify-between pb-2 border-b border-slate-200">
       <div>
@@ -74,7 +123,7 @@
         <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
         <span>Volver a todas las juntadas</span>
       </button>
-      <button onclick="deleteCurrentEvent()" class="text-[11px] text-slate-400 hover:text-rose-600 py-1 px-2 rounded transition-colors" title="Eliminar este evento">
+      <button id="delete-event-btn" onclick="deleteCurrentEvent()" class="hidden text-[11px] text-slate-400 hover:text-rose-600 py-1 px-2 rounded transition-colors" title="Eliminar este evento">
         Eliminar juntada
       </button>
     </div>
@@ -109,14 +158,12 @@
         Calculando plazo...
       </div>
       
-      <h2 id="event-title" class="text-lg font-bold text-slate-900 mb-4">
-        Juntada de Fin de Semana
-      </h2>
+      <h2 id="event-title" class="text-lg font-bold text-slate-900 mb-1"></h2>
+      <p id="event-organizer" class="text-[11px] text-slate-400 mb-4"></p>
 
       <!-- Formulario de confirmación centrado -->
       <div class="max-w-sm mx-auto space-y-2.5">
-        <input type="text" id="current-user-input" placeholder="Ingresá tu nombre" 
-               class="w-full text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-slate-800 text-center placeholder-slate-400 focus:outline-none focus:border-slate-400 focus:bg-white">
+        <p id="rsvp-current-status" class="text-xs text-slate-600"></p>
 
         <div class="flex items-center justify-center gap-2">
           <button onclick="submitRSVP('yes')" class="flex-1 text-xs py-2 px-3 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white font-medium transition-colors">
@@ -404,7 +451,7 @@
           </ul>
         </div>
         <div>
-          <strong>Solución implementada:</strong> Votación directa sin login, rotación de sede, compromiso de limpieza final y resumen en un clic para WhatsApp.
+          <strong>Solución implementada:</strong> Confirmación y votación en un toque, rotación de sede, compromiso de limpieza final, división de gastos y resumen en un clic para WhatsApp.
         </div>
       </div>
 
@@ -425,11 +472,7 @@
       <div class="space-y-2.5 text-xs">
         <div>
           <label class="block text-slate-600 mb-1 font-medium">Título del evento</label>
-          <input type="text" id="new-title-input" value="Juntada de Fin de Semana" class="w-full px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:border-slate-400">
-        </div>
-        <div>
-          <label class="block text-slate-600 mb-1 font-medium">Organizador</label>
-          <input type="text" id="new-org-input" value="Salvador" class="w-full px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:border-slate-400">
+          <input type="text" id="new-title-input" value="Juntada de Fin de Semana" maxlength="80" class="w-full px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:border-slate-400">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -459,6 +502,7 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

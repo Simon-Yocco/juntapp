@@ -1,6 +1,6 @@
-# Coordinador de Juntadas
+# Coordinador de Juntadas (JUNTAPP)
 
-> **Prototipo de Solución — Proyecto Design Thinking**  
+> **Prototipo de Solución — Proyecto Design Thinking**
 > **Integrantes:** Simon Yocco, Lucas Martino, Mateo Bertin, Pedro Ravanelli, Salvador Tosar, Robertino Joffre.
 
 ---
@@ -15,20 +15,60 @@ Este prototipo web aborda la fricción organizativa previa al coordinar un encue
 
 ## 🛠️ Estructura de la Solución
 
+* **Cuentas de usuario:** registro e inicio de sesión con usuario y contraseña. Quien entra por el link de invitación se registra y queda sumado a la juntada.
 * **Panel multi-evento:** Permite gestionar múltiples juntadas y crear nuevas reuniones.
-* **Votación ágil de fechas y confirmación en un toque:** Sin necesidad de registro de usuario.
-* **Rotación equitativa de anfitrión:** Sugiere de forma ordenada a quién le corresponde recibir según el historial previo, con opción de punto de encuentro neutro.
-* **Compromiso de orden y distribución de tareas:** Incorpora una responsabilidad explícita de orden mutuo final para no recargar al anfitrión.
-* **División de gastos y liquidación de deudas:** Permite cargar gastos (quién pagó y cuánto), calcula el costo por persona y define exactamente quién le transfiere a quién para saldar.
-* **Integración con WhatsApp:** Genera un resumen formal con detalles, cuentas y enlace directo para compartir en el canal habitual del grupo.
+* **Votación de fechas y confirmación en un toque**, con la opción de proponer una fecha nueva.
+* **Rotación equitativa de anfitrión:** Sugiere a quién le corresponde recibir según cuántas veces recibió cada uno, con opción de punto de encuentro neutro.
+* **Compromiso de orden y distribución de tareas:** responsabilidad explícita de orden mutuo final y tareas con responsable.
+* **División de gastos y liquidación de deudas:** calcula el costo por persona y quién le transfiere a quién para saldar.
+* **Integración con WhatsApp:** resumen con detalles, cuentas y link para compartir en el grupo.
 
 ---
 
-## 🚀 Ejecución
+## 🧱 Tecnologías
 
-* **Directa:** Abrir `index.html` en cualquier navegador web.
-* **Servidor local (Node.js):**
-  ```bash
-  npm start
-  ```
-  Acceso en: `http://localhost:3000`
+* **Front:** HTML + JavaScript + Tailwind (carpeta `public/`).
+* **Back:** Node.js + Express (API en `/api`).
+* **Base de datos:** MySQL con Sequelize como ORM.
+* **Sesiones:** contraseñas hasheadas con bcrypt y sesión en cookie httpOnly (JWT).
+
+```
+tp juntada/
+├── server.js            servidor: API + archivos de public/
+├── public/              front (index.html, js/, css/)
+└── src/
+    ├── db.js            conexión a MySQL
+    ├── models/          modelos Sequelize (usuarios, juntadas, fechas, tareas, gastos)
+    ├── routes/          API de auth y de juntadas
+    ├── eventView.js     arma el JSON de una juntada para el front
+    ├── eventService.js  reglas de negocio compartidas
+    └── seed.js          datos de ejemplo
+```
+
+---
+
+## 🚀 Cómo correrlo
+
+### 1. Requisitos
+* [Node.js](https://nodejs.org/) 18 o más nuevo.
+* [MySQL Server](https://dev.mysql.com/downloads/installer/) corriendo (con Workbench para ver los datos).
+
+### 2. Configurar
+Dentro de `tp juntada/`:
+```bash
+npm install
+```
+Copiá `.env.example` como `.env` y completá la contraseña de tu usuario de MySQL. La base `juntapp` y sus tablas se crean solas al iniciar.
+
+### 3. (Opcional) Cargar datos de ejemplo
+```bash
+npm run seed
+```
+⚠️ **Borra todas las tablas** y carga a los integrantes del grupo con dos juntadas de ejemplo.
+Usuarios: `simon`, `lucas`, `mateo`, `pedro`, `salvador`, `robertino` — contraseña: `juntapp123`.
+
+### 4. Iniciar
+```bash
+npm start
+```
+Acceso en: `http://localhost:3000`
