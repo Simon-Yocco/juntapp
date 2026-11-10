@@ -59,12 +59,13 @@ const eventRepository = {
   },
 
   // Ids de las juntadas de un usuario, de la más nueva a la más vieja
+  // (MySQL guarda la fecha sin milésimas: en empate, primero la de plazo más lejano)
   async findIdsByMember(userId) {
     const memberships = await EventMember.findAll({
       where: { userId },
       attributes: ["eventId"],
-      include: [{ model: Event, attributes: ["createdAt"] }],
-      order: [[Event, "createdAt", "DESC"]]
+      include: [{ model: Event, attributes: ["createdAt", "deadline"] }],
+      order: [[Event, "createdAt", "DESC"], [Event, "deadline", "DESC"]]
     });
     return memberships.map(m => m.eventId);
   },
