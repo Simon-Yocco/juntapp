@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadAllEvents();
   setupRouting();
   initCountdown();
+  setupSectionNavObserver();
 });
 
 // Carga de eventos desde LocalStorage
@@ -192,8 +193,56 @@ function openEventDetail(eventId, updateHash = true) {
   document.getElementById("view-event-detail")?.classList.remove("hidden");
 
   renderApp();
+  positionSectionNav();
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (window.lucide) lucide.createIcons();
+}
+
+// ----------------- BARRA DE NAVEGACIÓN POR SECCIONES -----------------
+
+// Abre el desplegable (si está cerrado) y lleva la pantalla hasta esa sección
+function goToSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  if (section.tagName === "DETAILS") section.open = true;
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  setActiveNavChip(sectionId);
+}
+
+function setActiveNavChip(sectionId) {
+  document.querySelectorAll("#section-nav [data-nav]").forEach(chip => {
+    const isActive = chip.dataset.nav === sectionId;
+    chip.classList.toggle("is-active", isActive);
+    if (isActive) chip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  });
+}
+
+// Ubica la barra justo debajo del encabezado (cuya altura cambia en celular)
+function positionSectionNav() {
+  const header = document.querySelector("header");
+  const nav = document.getElementById("section-nav");
+  if (!header || !nav) return;
+  const headerHeight = header.offsetHeight;
+  nav.style.top = headerHeight + "px";
+  document.documentElement.style.setProperty("--section-offset", (headerHeight + nav.offsetHeight + 12) + "px");
+}
+
+// Marca en la barra la sección que se está viendo mientras se hace scroll
+function setupSectionNavObserver() {
+  positionSectionNav();
+  window.addEventListener("resize", positionSectionNav);
+
+  if (!("IntersectionObserver" in window)) return;
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) setActiveNavChip(entry.target.id);
+    });
+  }, { rootMargin: "-120px 0px -60% 0px" });
+
+  document.querySelectorAll("#section-nav [data-nav]").forEach(chip => {
+    const section = document.getElementById(chip.dataset.nav);
+    if (section) observer.observe(section);
+  });
 }
 
 function deleteCurrentEvent() {
@@ -286,6 +335,7 @@ function renderApp() {
   renderDateVoting();
   renderHostSection();
   renderChecklist();
+  renderTaskAssigneeOptions();
   renderAttendeesSection();
   renderExpensesSection();
 
@@ -337,6 +387,7 @@ function renderDateVoting() {
           <span class="text-xs font-semibold text-slate-900">${date.label}</span>
           ${isLeader ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 font-medium border border-slate-200">Más votada</span>' : ''}
           <span class="text-[11px] text-slate-400 font-medium">(${voteCount})</span>
+          ${date.proposedBy ? `<span class="text-[10px] text-slate-400">· propuesta por ${date.proposedBy}</span>` : ''}
         </div>
 
         <div class="flex items-center gap-2">
@@ -788,6 +839,38 @@ function toggleDateVote(dateId) {
   renderApp();
 }
 
+// Agrega una opción de fecha nueva y la vota automáticamente quien la propone
+function proposeNewDate() {
+  const daySelect = document.getElementById("new-date-day-select");
+  const timeInput = document.getElementById("new-date-time-input");
+  const day = daySelect?.value;
+  const time = timeInput?.value;
+
+  if (!day || !time) {
+    alert("Elegí un día y un horario para proponer");
+    return;
+  }
+  if (!setUserNameFromInput()) return;
+
+  const label = `${day} ${time} hs`;
+  const existing = currentEvent.dates.find(d => d.label.toLowerCase() === label.toLowerCase());
+  if (existing) {
+    if (!existing.votes.includes(currentUser.name)) existing.votes.push(currentUser.name);
+  } else {
+    currentEvent.dates.push({
+      id: "d-" + Date.now(),
+      label: label,
+      votes: [currentUser.name],
+      proposedBy: currentUser.name
+    });
+  }
+
+  daySelect.value = "";
+  timeInput.value = "";
+  syncCurrentEvent();
+  renderApp();
+}
+
 function claimTask(taskId) {
   if (!setUserNameFromInput()) return;
 
@@ -813,18 +896,43 @@ function unclaimTask(taskId) {
   }
 }
 
+// Opciones del selector "Responsable" de una tarea nueva: los integrantes de la juntada
+function renderTaskAssigneeOptions() {
+  const select = document.getElementById("new-task-assignee-select");
+  if (!select) return;
+
+  const previous = select.value;
+  const names = currentEvent.attendees.map(a => a.name);
+  if (currentUser.name && !names.includes(currentUser.name)) names.unshift(currentUser.name);
+
+  select.innerHTML =
+    `<option value="">Responsable: sin asignar</option>` +
+    names.map(name => `
+      <option value="${name}">Responsable: ${name}${name === currentUser.name ? " (vos)" : ""}</option>
+    `).join('');
+
+  if (names.includes(previous)) select.value = previous;
+}
+
 function addNewCustomTask() {
   const input = document.getElementById("new-task-input");
-  if (!input || !input.value.trim()) return;
+  const assigneeSelect = document.getElementById("new-task-assignee-select");
+  if (!input || !input.value.trim()) {
+    alert("Escribí la tarea primero (ej: Comprar hielo y carbón)");
+    return;
+  }
+
+  const assignee = assigneeSelect?.value;
 
   currentEvent.tasks.push({
     id: "task-" + Date.now(),
     title: input.value.trim(),
-    assignedTo: currentUser.name ? [currentUser.name] : [],
+    assignedTo: assignee ? [assignee] : [],
     maxAssignees: 1
   });
 
   input.value = "";
+  if (assigneeSelect) assigneeSelect.value = "";
   syncCurrentEvent();
   renderApp();
 }

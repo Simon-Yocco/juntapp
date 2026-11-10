@@ -79,8 +79,32 @@
       </button>
     </div>
 
+    <!-- BARRA DE NAVEGACIÓN POR SECCIONES -->
+    <nav id="section-nav" class="sticky top-[49px] z-20 -mx-4 px-4 py-2 bg-slate-50/95 backdrop-blur border-b border-slate-200">
+      <div class="flex gap-1.5 overflow-x-auto no-scrollbar">
+        <button onclick="goToSection('sec-rsvp')" data-nav="sec-rsvp" class="nav-chip">
+          <i data-lucide="user-check" class="w-3.5 h-3.5"></i><span>Asistencia</span>
+        </button>
+        <button onclick="goToSection('sec-dates')" data-nav="sec-dates" class="nav-chip">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>Fechas</span>
+        </button>
+        <button onclick="goToSection('sec-host')" data-nav="sec-host" class="nav-chip">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i><span>Sede</span>
+        </button>
+        <button onclick="goToSection('sec-tasks')" data-nav="sec-tasks" class="nav-chip">
+          <i data-lucide="check-square" class="w-3.5 h-3.5"></i><span>Tareas</span>
+        </button>
+        <button onclick="goToSection('sec-expenses')" data-nav="sec-expenses" class="nav-chip">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i><span>Gastos</span>
+        </button>
+        <button onclick="goToSection('sec-share')" data-nav="sec-share" class="nav-chip">
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i><span>Compartir</span>
+        </button>
+      </div>
+    </nav>
+
     <!-- TARJETA PRINCIPAL: EVENTO Y RESPUESTA RÁPIDA (CENTRADA) -->
-    <section class="clean-card p-5 text-center">
+    <section id="sec-rsvp" class="clean-card p-5 text-center app-section">
       <div class="inline-block text-[11px] font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full mb-2" id="deadline-countdown">
         Calculando plazo...
       </div>
@@ -109,7 +133,7 @@
     </section>
 
     <!-- 1. DESPLEGABLE: FECHAS -->
-    <details class="clean-card group overflow-hidden" open>
+    <details id="sec-dates" class="clean-card group overflow-hidden app-section" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
           <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
@@ -121,14 +145,40 @@
         </svg>
       </summary>
       <div class="p-3.5 pt-1 border-t border-slate-100">
+        <div class="text-[10px] uppercase font-semibold text-slate-400 mt-2 mb-1">Votá las opciones</div>
         <div id="date-options-container" class="space-y-2">
           <!-- Renderizado por JS -->
+        </div>
+
+        <!-- Proponer una fecha nueva -->
+        <div class="mt-3 p-2.5 rounded-lg border border-dashed border-slate-300 bg-slate-50/70 space-y-2">
+          <div>
+            <div class="text-xs font-semibold text-slate-800">¿Ninguna te sirve? Proponé otra</div>
+            <div class="text-[11px] text-slate-500">Se agrega como opción nueva para que el resto la vote.</div>
+          </div>
+          <div class="flex gap-1.5">
+            <select id="new-date-day-select" class="flex-1 text-xs px-2 py-1.5 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
+              <option value="">Día...</option>
+              <option>Lunes</option>
+              <option>Martes</option>
+              <option>Miércoles</option>
+              <option>Jueves</option>
+              <option>Viernes</option>
+              <option>Sábado</option>
+              <option>Domingo</option>
+            </select>
+            <input type="time" id="new-date-time-input"
+                   class="w-28 text-xs px-2 py-1.5 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
+            <button onclick="proposeNewDate()" class="text-xs px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap">
+              Proponer
+            </button>
+          </div>
         </div>
       </div>
     </details>
 
     <!-- 2. DESPLEGABLE: SEDE -->
-    <details class="clean-card group overflow-hidden" open>
+    <details id="sec-host" class="clean-card group overflow-hidden app-section" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
           <i data-lucide="home" class="w-4 h-4 text-slate-500"></i>
@@ -176,7 +226,7 @@
     </details>
 
     <!-- 3. DESPLEGABLE: COSAS A TRAER -->
-    <details class="clean-card group overflow-hidden" open>
+    <details id="sec-tasks" class="clean-card group overflow-hidden app-section" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
           <i data-lucide="check-square" class="w-4 h-4 text-slate-500"></i>
@@ -193,18 +243,24 @@
         </div>
 
         <!-- Agregar cosa -->
-        <div class="mt-2.5 pt-2 border-t border-slate-100 flex gap-1.5">
-          <input type="text" id="new-task-input" placeholder="Nueva responsabilidad o aporte..." 
-                 class="flex-1 text-xs px-2.5 py-1 bg-slate-50 border border-slate-200 rounded text-slate-800 placeholder-slate-400 focus:outline-none">
-          <button onclick="addNewCustomTask()" class="text-xs px-3 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium">
-            + Agregar
-          </button>
+        <div class="mt-2.5 pt-2 border-t border-slate-100 space-y-1.5">
+          <div class="text-[10px] uppercase font-semibold text-slate-400">Anotar tarea nueva</div>
+          <input type="text" id="new-task-input" placeholder="Ej: Comprar hielo y carbón"
+                 class="w-full text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400">
+          <div class="flex gap-1.5">
+            <select id="new-task-assignee-select" class="flex-1 text-xs px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-slate-400">
+              <!-- Opciones de responsable por JS -->
+            </select>
+            <button onclick="addNewCustomTask()" class="text-xs px-3 py-1.5 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium whitespace-nowrap">
+              + Agregar
+            </button>
+          </div>
         </div>
       </div>
     </details>
 
     <!-- 4. DESPLEGABLE: ASISTENCIA -->
-    <details class="clean-card group overflow-hidden" open>
+    <details id="sec-attendees" class="clean-card group overflow-hidden app-section" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
           <i data-lucide="users" class="w-4 h-4 text-slate-500"></i>
@@ -223,7 +279,7 @@
     </details>
 
     <!-- 5. DESPLEGABLE: CUENTAS Y GASTOS (NUEVO) -->
-    <details class="clean-card group overflow-hidden">
+    <details id="sec-expenses" class="clean-card group overflow-hidden app-section">
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
           <i data-lucide="calculator" class="w-4 h-4 text-slate-500"></i>
@@ -300,7 +356,7 @@
     </details>
 
     <!-- 6. DESPLEGABLE: COMPARTIR EN WHATSAPP -->
-    <details class="clean-card group overflow-hidden">
+    <details id="sec-share" class="clean-card group overflow-hidden app-section">
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
           <i data-lucide="share-2" class="w-4 h-4 text-slate-500"></i>
