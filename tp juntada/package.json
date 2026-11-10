@@ -1,0 +1,12 @@
+{
+  "name": "sale-juntada",
+  "version": "1.0.0",
+  "description": "Solución digital al reto de Design Thinking: Juntadas con amigos",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["design-thinking", "juntadas", "argentina", "amigos", "whatsapp"],
+  "author": "Simon Yocco, Lucas Martino, Mateo Bertin, Pedro Ravanelli, Salvador Tosar, Robertino Joffre",
+  "license": "MIT"
+}

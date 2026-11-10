@@ -1,0 +1,4 @@
+# Archivos que no se suben
+*.zip
+.claude/
+node_modules/
