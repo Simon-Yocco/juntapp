@@ -6,7 +6,7 @@
  *        │                       └──< expenses ──< expense_participants
  */
 const { DataTypes } = require("sequelize");
-const { sequelize } = require("../db");
+const { sequelize } = require("../config/database");
 
 const USER_ID = DataTypes.INTEGER.UNSIGNED;
 

@@ -47,28 +47,47 @@ La base ya tiene `expenses.task_id` para asociar un gasto a una tarea; falta la 
 ## Estructura y cómo correr
 ```
 tp juntada/
-├── server.js            Express: API en /api + archivos de public/ (solo public/ es accesible)
-├── public/
+├── server.js            arranque: conecta a MySQL, sincroniza tablas y levanta createApp()
+├── public/              front (lo único que sirve Express como archivos)
 │   ├── index.html       vistas: login, lista de juntadas y detalle (secciones desplegables)
 │   ├── js/api.js        wrapper de fetch (lanza ApiError con status y code)
 │   ├── js/app.js        render y acciones; cada acción llama a la API y re-renderiza con la respuesta
 │   └── css/styles.css
 └── src/
-    ├── db.js            Sequelize + crea la base si no existe
-    ├── models/index.js  modelos y asociaciones
-    ├── auth.js          JWT en cookie httpOnly, middleware requireAuth
-    ├── errors.js        HttpError + manejador central
-    ├── eventView.js     arma el JSON de una juntada (misma forma que usa el front)
-    ├── eventService.js  reglas compartidas: crear juntada, proponer fecha, próximo anfitrión
-    ├── routes/          auth.js y events.js
-    └── seed.js          datos de ejemplo (BORRA todo)
+    ├── app.js           arma Express (middlewares, /api, estáticos, errorHandler)
+    ├── config/          env.js (lee .env) y database.js (Sequelize + crea la base si no existe)
+    ├── routes/          URL → controlador. index.js monta /auth y /events (con requireAuth)
+    ├── middlewares/     requireAuth, errorHandler, apiNotFound
+    ├── controllers/     HTTP: leen req, llaman a un servicio, responden. Uno por área
+    ├── services/        reglas de negocio y permisos. Uno por área (auth, event, date, task, host, expense) + accessService
+    ├── repositories/    acceso a datos con Sequelize. Uno por agregado + transaction.js
+    ├── models/          modelos Sequelize y asociaciones
+    ├── views/           eventPresenter.js: entidad de la base → JSON del front (funciones puras)
+    ├── errors/          AppError y subclases (BadRequest, Unauthorized, Forbidden, NotFound, Conflict)
+    ├── utils/           validators, sessionToken (JWT), sessionCookie
+    └── scripts/seed.js  datos de ejemplo (BORRA todo)
 ```
 - Desde `tp juntada/`: `npm install`, copiar `.env.example` a `.env`, `npm start` → http://localhost:3000
 - `npm run seed`: carga a los 6 integrantes (contraseña `juntapp123`) y dos juntadas de ejemplo.
 
+## Arquitectura en capas (respetarla siempre)
+```
+routes → controllers → services → repositories → models → MySQL
+                          ↓
+                        views (presentación)
+```
+- **routes:** solo asocian URL y método a un controlador (y middlewares). Nada de lógica.
+- **controllers:** traducen HTTP. Leen `req.params`, `req.body` y `req.user`, llaman a **un** método de servicio y responden con el status. No validan reglas ni tocan modelos o repositorios. La cookie de sesión se maneja acá (`authController`).
+- **services:** toda regla de negocio, validación de datos y permiso. No conocen `req` ni `res`: reciben datos simples (`eventId`, `userId`, objeto con los datos) y devuelven datos o lanzan un `AppError`. Las transacciones se abren acá con `runInTransaction` y se pasan a los repositorios como `{ transaction }`.
+- **repositories:** únicas que usan los modelos de Sequelize. Sin reglas de negocio. Aceptan `options` para transacciones.
+- **views:** funciones puras que arman el JSON de respuesta; no consultan la base.
+- Las dependencias van solo hacia abajo: un controlador nunca importa un repositorio, un servicio nunca importa `express` ni un modelo.
+- Los errores se lanzan como `AppError` desde los servicios; `middlewares/errorHandler` los convierte en `{ error, code }` con su status. Express 5 propaga solo los errores de funciones `async`.
+- **Para agregar un endpoint:** método en el repositorio (si hace falta un dato nuevo) → método en el servicio con validaciones y permisos → función en el controlador → línea en el archivo de rutas.
+
 ## Cómo está hecha la API
-- Todas las rutas de `/api/events` requieren sesión, y las de una juntada además ser integrante (`requireMember`). Si no lo es, se responde 403 con `code: "NOT_MEMBER"` y el front llama a `POST /:id/join`.
-- Las rutas que modifican devuelven la juntada actualizada (`buildEventView`), así el front re-renderiza con un solo pedido.
+- Todas las rutas de `/api/events` requieren sesión, y las de una juntada además ser integrante (`accessService.requireMember`). Si no lo es, se responde 403 con `code: "NOT_MEMBER"` y el front llama a `POST /:id/join`.
+- Las rutas que modifican devuelven la juntada actualizada (`eventService.buildView`), así el front re-renderiza con un solo pedido.
 - En el JSON, las personas se identifican por `userId`; el nombre sale de `attendees` (en el front, `nameOf(userId)`).
 - Los ids de juntada son UUID, para que el link de invitación no se pueda adivinar.
 - Todo texto que escriben los usuarios se inserta con `escapeHtml()`.

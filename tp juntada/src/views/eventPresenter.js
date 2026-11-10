@@ -1,51 +1,8 @@
 /**
- * Arma el JSON de una juntada tal como lo usa el front.
+ * Capa de presentación: convierte una juntada de la base en el JSON que usa el front.
+ * Funciones puras (no consultan la base).
  * Las personas se identifican por userId; el nombre visible viene en `attendees`.
  */
-const { Op, fn, col } = require("sequelize");
-const {
-  User, Event, EventMember, DateOption, DateVote, Task, TaskAssignee, Expense, ExpenseParticipant
-} = require("./models");
-
-const USER_ATTRS = ["id", "username", "displayName"];
-
-async function loadEventWithDetails(eventId) {
-  return Event.findByPk(eventId, {
-    include: [
-      { model: User, as: "organizer", attributes: USER_ATTRS },
-      { model: EventMember, as: "members", include: [{ model: User, as: "user", attributes: USER_ATTRS }] },
-      {
-        model: DateOption, as: "dates",
-        include: [
-          { model: DateVote, as: "votes" },
-          { model: User, as: "proposedBy", attributes: USER_ATTRS }
-        ]
-      },
-      { model: Task, as: "tasks", include: [{ model: TaskAssignee, as: "assignees" }] },
-      { model: Expense, as: "expenses", include: [{ model: ExpenseParticipant, as: "participants" }] }
-    ],
-    order: [
-      [{ model: EventMember, as: "members" }, "createdAt", "ASC"],
-      [{ model: DateOption, as: "dates" }, "id", "ASC"],
-      [{ model: Task, as: "tasks" }, "id", "ASC"],
-      [{ model: Expense, as: "expenses" }, "id", "ASC"]
-    ]
-  });
-}
-
-// Cuántas veces fue anfitrión cada integrante en OTRAS juntadas (para la rotación equitativa)
-async function loadHostCounts(eventId, userIds) {
-  if (userIds.length === 0) return {};
-  const rows = await Event.findAll({
-    attributes: ["currentHostId", [fn("COUNT", col("id")), "count"], [fn("MAX", col("deadline")), "lastDate"]],
-    where: { currentHostId: { [Op.in]: userIds }, hostMode: "house", id: { [Op.ne]: eventId } },
-    group: ["currentHostId"],
-    raw: true
-  });
-  const result = {};
-  rows.forEach(r => { result[r.currentHostId] = { count: Number(r.count), lastDate: r.lastDate }; });
-  return result;
-}
 
 // Fecha con más votos (en empate, la primera que se propuso)
 function pickWinningDate(dates) {
@@ -56,12 +13,12 @@ function pickWinningDate(dates) {
   return winner;
 }
 
-async function buildEventView(eventId, currentUserId) {
-  const event = await loadEventWithDetails(eventId);
-  if (!event) return null;
-
-  const memberIds = event.members.map(m => m.userId);
-  const hostCounts = await loadHostCounts(event.id, memberIds);
+/**
+ * @param event        juntada cargada con eventRepository.findWithDetails
+ * @param hostCounts   { [userId]: { count, lastDate } } de eventRepository.countHostingsByUsers
+ * @param currentUserId usuario que pide la juntada
+ */
+function presentEvent(event, hostCounts, currentUserId) {
   const isHouse = event.hostMode === "house";
 
   const attendees = event.members.map(m => ({
@@ -72,6 +29,7 @@ async function buildEventView(eventId, currentUserId) {
     isHost: isHouse && m.userId === event.currentHostId
   }));
 
+  // Ordenado de menos a más veces anfitrión (base de la rotación equitativa)
   const history = attendees
     .map(a => ({
       userId: a.userId,
@@ -121,7 +79,7 @@ async function buildEventView(eventId, currentUserId) {
 }
 
 // Versión resumida para la lista de "Tus Juntadas"
-function summarizeEventView(view) {
+function presentEventSummary(view) {
   const winner = pickWinningDate(view.dates);
   const hostName = view.hostInfo.mode === "house"
     ? (view.attendees.find(a => a.userId === view.hostInfo.currentHost)?.name || "A definir")
@@ -137,4 +95,8 @@ function summarizeEventView(view) {
   };
 }
 
-module.exports = { buildEventView, summarizeEventView, pickWinningDate };
+function presentUser(user) {
+  return { id: user.id, username: user.username, displayName: user.displayName };
+}
+
+module.exports = { presentEvent, presentEventSummary, presentUser, pickWinningDate };

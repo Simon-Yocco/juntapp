@@ -32,17 +32,42 @@ Este prototipo web aborda la fricción organizativa previa al coordinar un encue
 * **Base de datos:** MySQL con Sequelize como ORM.
 * **Sesiones:** contraseñas hasheadas con bcrypt y sesión en cookie httpOnly (JWT).
 
+### Arquitectura en capas del backend
+
+```
+Pedido HTTP
+   │
+routes/         URL → controlador
+   │
+controllers/    traduce HTTP: lee el pedido, llama al servicio, responde
+   │
+services/       reglas de negocio, validaciones y permisos ──► views/ (arma el JSON de respuesta)
+   │
+repositories/   acceso a datos con Sequelize
+   │
+models/         tablas y relaciones
+   │
+MySQL
+```
+Cada capa solo usa la de abajo. Transversales: `middlewares/` (sesión y errores), `errors/`, `utils/` y `config/`.
+
 ```
 tp juntada/
-├── server.js            servidor: API + archivos de public/
+├── server.js            arranque (conexión a MySQL + servidor)
 ├── public/              front (index.html, js/, css/)
 └── src/
-    ├── db.js            conexión a MySQL
-    ├── models/          modelos Sequelize (usuarios, juntadas, fechas, tareas, gastos)
-    ├── routes/          API de auth y de juntadas
-    ├── eventView.js     arma el JSON de una juntada para el front
-    ├── eventService.js  reglas de negocio compartidas
-    └── seed.js          datos de ejemplo
+    ├── app.js           armado de Express
+    ├── config/          variables de entorno y conexión a la base
+    ├── routes/          rutas de /api/auth y /api/events
+    ├── middlewares/     sesión obligatoria y manejo de errores
+    ├── controllers/     auth, juntadas, fechas, tareas, sede, gastos
+    ├── services/        reglas de negocio por área
+    ├── repositories/    consultas a la base por entidad
+    ├── models/          modelos Sequelize
+    ├── views/           presentación de las respuestas
+    ├── errors/          errores de la aplicación
+    ├── utils/           validaciones y sesión
+    └── scripts/seed.js  datos de ejemplo
 ```
 
 ---

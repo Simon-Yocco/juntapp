@@ -7,15 +7,16 @@
  * Usuarios de prueba (todos con la contraseña: juntapp123):
  *   simon, lucas, mateo, pedro, salvador, robertino
  */
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "..", ".env"), quiet: true });
-
-const bcrypt = require("bcryptjs");
-const { ensureDatabase } = require("./db");
-const {
-  sequelize, User, Event, EventMember, DateOption, DateVote, Task, TaskAssignee, Expense, ExpenseParticipant
-} = require("./models");
-const { createEvent } = require("./eventService");
+const { sequelize, ensureDatabase } = require("../config/database");
+require("../models");
+const userRepository = require("../repositories/userRepository");
+const eventRepository = require("../repositories/eventRepository");
+const memberRepository = require("../repositories/memberRepository");
+const dateRepository = require("../repositories/dateRepository");
+const taskRepository = require("../repositories/taskRepository");
+const expenseRepository = require("../repositories/expenseRepository");
+const { hashPassword } = require("../services/authService");
+const { createEventRecord } = require("../services/eventService");
 
 const DEMO_PASSWORD = "juntapp123";
 
@@ -33,59 +34,58 @@ const daysAgo = (d) => new Date(Date.now() - d * 24 * 3600 * 1000);
 
 async function addMembers(eventId, statuses) {
   for (const [userId, status] of Object.entries(statuses)) {
-    await EventMember.upsert({ eventId, userId: Number(userId), status });
+    await memberRepository.upsert({ eventId, userId: Number(userId), status });
   }
 }
 
 async function addVotes(eventId, votesByLabel) {
-  const options = await DateOption.findAll({ where: { eventId } });
-  for (const option of options) {
+  for (const option of await dateRepository.listByEvent(eventId)) {
     for (const userId of votesByLabel[option.label] || []) {
-      await DateVote.create({ dateOptionId: option.id, userId });
+      await dateRepository.addVote(option.id, userId);
     }
   }
 }
 
 async function assignTasks(eventId, assigneesByTitle) {
-  const tasks = await Task.findAll({ where: { eventId } });
-  for (const task of tasks) {
+  for (const task of await taskRepository.listByEvent(eventId)) {
     for (const userId of assigneesByTitle[task.title] || []) {
-      await TaskAssignee.create({ taskId: task.id, userId });
+      await taskRepository.addAssignee(task.id, userId);
     }
   }
 }
 
 async function addExpense(eventId, { description, amount, payerId, participantIds }) {
-  const expense = await Expense.create({ eventId, description, amount, payerId, createdById: payerId });
-  await ExpenseParticipant.bulkCreate(participantIds.map(userId => ({ expenseId: expense.id, userId })));
+  await expenseRepository.createWithParticipants(
+    { eventId, description, amount, payerId, createdById: payerId },
+    participantIds
+  );
 }
 
 async function seed() {
   await ensureDatabase();
   await sequelize.sync({ force: true });
 
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const passwordHash = await hashPassword(DEMO_PASSWORD);
   const u = {};
   for (const data of USERS) {
-    const user = await User.create({ ...data, passwordHash });
+    const user = await userRepository.create({ ...data, passwordHash });
     u[data.username] = user.id;
   }
 
   // Juntadas pasadas, para que la rotación de anfitrión tenga historial
   const pastHosts = ["salvador", "salvador", "salvador", "simon", "simon", "mateo", "mateo", "lucas", "pedro"];
   for (const [i, host] of pastHosts.entries()) {
-    const past = await createEvent({
+    await createEventRecord({
       organizerId: u[host],
       title: `Juntada anterior #${i + 1}`,
       dateLabels: ["Sábado 22:00 hs"],
       deadline: daysAgo(15 + i * 10),
       tasks: []
     });
-    await past.update({ createdAt: daysAgo(16 + i * 10) }, { silent: true });
   }
 
   // Juntada 1
-  const fds = await createEvent({
+  const fds = await createEventRecord({
     organizerId: u.salvador,
     title: "Juntada de Fin de Semana",
     dateLabels: ["Viernes 21:30 hs", "Sábado 22:00 hs", "Domingo 13:00 hs"],
@@ -99,7 +99,7 @@ async function seed() {
       { title: "Música / Parlante", maxAssignees: 1 }
     ]
   });
-  await fds.update({ currentHostId: u.lucas });
+  await eventRepository.update(fds, { currentHostId: u.lucas });
   await addMembers(fds.id, {
     [u.lucas]: "yes", [u.mateo]: "yes", [u.simon]: "yes", [u.pedro]: "maybe", [u.robertino]: "maybe"
   });
@@ -118,7 +118,7 @@ async function seed() {
   await addExpense(fds.id, { description: "Hielo y vasos", amount: 6000, payerId: u.salvador, participantIds: [u.salvador, u.lucas, u.mateo, u.simon] });
 
   // Juntada 2
-  const asado = await createEvent({
+  const asado = await createEventRecord({
     organizerId: u.mateo,
     title: "Asado de Fin de Mes",
     dateLabels: ["Domingo 13:00 hs", "Sábado 21:30 hs"],
@@ -129,7 +129,7 @@ async function seed() {
       { title: "Bebidas", maxAssignees: 3 }
     ]
   });
-  await asado.update({ currentHostId: u.simon });
+  await eventRepository.update(asado, { currentHostId: u.simon });
   await addMembers(asado.id, { [u.simon]: "yes", [u.salvador]: "yes", [u.lucas]: "maybe" });
   await addVotes(asado.id, {
     "Domingo 13:00 hs": [u.mateo, u.simon, u.salvador],
@@ -142,8 +142,7 @@ async function seed() {
   });
   await addExpense(asado.id, { description: "Carne y carbón", amount: 45000, payerId: u.mateo, participantIds: [u.mateo, u.simon, u.salvador] });
 
-  const eventCount = await Event.count();
-  console.log(`✅ Datos de ejemplo cargados: ${USERS.length} usuarios y ${eventCount} juntadas.`);
+  console.log(`✅ Datos de ejemplo cargados: ${USERS.length} usuarios, ${pastHosts.length + 2} juntadas.`);
   console.log(`   Usuarios: ${USERS.map(x => x.username).join(", ")} — contraseña: ${DEMO_PASSWORD}`);
 }
 
