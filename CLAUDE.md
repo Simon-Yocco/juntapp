@@ -66,12 +66,34 @@ tp juntada/
     ├── models/          modelos Sequelize y asociaciones
     ├── views/           eventPresenter.js: entidad de la base → JSON del front (funciones puras)
     ├── errors/          AppError y subclases (BadRequest, Unauthorized, Forbidden, NotFound, Conflict)
-    ├── utils/           validators, sessionToken (JWT), sessionCookie
-    └── scripts/seed.js  datos de ejemplo (BORRA todo)
+    ├── utils/           validators, sessionToken (JWT), sessionCookie, joinCode
+    ├── seeders/         sampleData.js: datos de prueba (usuarios del grupo + juntadas de ejemplo)
+    └── scripts/seed.js  reinicia la base: BORRA todo y carga los datos de prueba
 ```
 - Desde `tp juntada/`: `npm install`, copiar `.env.example` a `.env`, `npm start` → http://localhost:3000
-- `npm run seed`: carga a los 6 integrantes (contraseña `juntapp123`) y dos juntadas de ejemplo.
+- **Al arrancar,** `server.js` crea la base si no existe y las tablas que falten. **Si no hay ningún usuario, carga los datos de prueba solo** (`seedIfEmpty`). Nunca borra ni pisa datos. Se desactiva con `SEED_SAMPLE_DATA=false` en `.env`, y en producción (`NODE_ENV=production`) no se cargan nunca.
+- `npm run seed`: reinicia la base. **Borra todo** y vuelve a cargar los datos de prueba.
+- Los datos de prueba se definen en un solo lugar: `src/seeders/sampleData.js`. Si se cambian ahí, se aplican tanto al arranque como al seed.
 - **Cambios en los modelos:** `sequelize.sync()` crea las tablas que faltan, pero no agrega columnas a las que ya existen. Si se agrega un campo a un modelo, hay que volver a correr `npm run seed`, que borra todo, o hacer el `ALTER TABLE` a mano en Workbench.
+
+## Usuarios de prueba
+Se crean solos la primera vez que arranca la app con la base vacía, o con `npm run seed`. Están definidos en `tp juntada/src/seeders/sampleData.js` y son solo para desarrollo y demos.
+
+| Usuario     | Nombre visible   | Contraseña   |
+|-------------|------------------|--------------|
+| `simon`     | Simon Yocco      | `juntapp123` |
+| `lucas`     | Lucas Martino    | `juntapp123` |
+| `mateo`     | Mateo Bertin     | `juntapp123` |
+| `pedro`     | Pedro Ravanelli  | `juntapp123` |
+| `salvador`  | Salvador Tosar   | `juntapp123` |
+| `robertino` | Robertino Joffre | `juntapp123` |
+
+Juntadas de ejemplo:
+- **"Juntada de Fin de Semana":** organiza `salvador`. Están los 6 usuarios. Anfitrión: `lucas`.
+- **"Asado de Fin de Mes":** organiza `mateo`. Integrantes: `mateo`, `simon`, `salvador` y `lucas`. **`pedro` y `robertino` no son parte**, así que sirven para probar unirse con el código o con el link.
+- Además hay 9 "Juntadas anteriores" ya vencidas, que solo existen para que la rotación de anfitrión tenga historial.
+
+Cualquier usuario creado desde "Crear cuenta" también sirve para probar.
 
 ## Arquitectura en capas (respetarla siempre)
 ```

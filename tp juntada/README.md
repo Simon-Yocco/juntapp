@@ -84,17 +84,21 @@ Dentro de `tp juntada/`:
 ```bash
 npm install
 ```
-Copiá `.env.example` como `.env` y completá la contraseña de tu usuario de MySQL. La base `juntapp` y sus tablas se crean solas al iniciar.
+Copiá `.env.example` como `.env` y completá la contraseña de tu usuario de MySQL.
 
-### 3. (Opcional) Cargar datos de ejemplo
-```bash
-npm run seed
-```
-⚠️ **Borra todas las tablas** y carga a los integrantes del grupo con dos juntadas de ejemplo.
-Usuarios: `simon`, `lucas`, `mateo`, `pedro`, `salvador`, `robertino` — contraseña: `juntapp123`.
-
-### 4. Iniciar
+### 3. Iniciar
 ```bash
 npm start
 ```
 Acceso en: `http://localhost:3000`
+
+**La primera vez se arma todo solo:** se crean la base `juntapp` y sus tablas y, como está vacía, se cargan los datos de prueba (integrantes del grupo y dos juntadas de ejemplo).
+Usuarios: `simon`, `lucas`, `mateo`, `pedro`, `salvador`, `robertino` — contraseña: `juntapp123`.
+
+Si la base ya tiene datos, no se toca nada. Para arrancar con la base vacía, poné `SEED_SAMPLE_DATA=false` en el `.env`.
+
+### Reiniciar la base (opcional)
+```bash
+npm run seed
+```
+⚠️ **Borra todas las tablas** y vuelve a cargar los datos de prueba. Sirve para volver al estado inicial.

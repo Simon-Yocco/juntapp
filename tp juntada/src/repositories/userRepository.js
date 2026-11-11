@@ -4,6 +4,10 @@
 const { User } = require("../models");
 
 const userRepository = {
+  count() {
+    return User.count();
+  },
+
   findById(id) {
     return User.findByPk(id);
   },
