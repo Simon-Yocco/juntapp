@@ -56,9 +56,9 @@
   <main id="view-auth" class="max-w-sm mx-auto px-4 pt-8 pb-6 hidden">
     <!-- Bienvenida -->
     <div class="text-center mb-5">
-      <div class="w-12 h-12 mx-auto rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-base mb-3">CJ</div>
-      <h2 id="auth-title" class="text-lg font-bold text-slate-900">Organizá tus juntadas</h2>
-      <p id="auth-subtitle" class="text-xs text-slate-500 mt-0.5">Fecha, sede, tareas y cuentas, todo en un solo lugar</p>
+      <div class="w-12 h-12 mx-auto rounded-xl bg-white text-slate-900 shadow flex items-center justify-center font-bold text-base mb-3">CJ</div>
+      <h2 id="auth-title" class="text-lg font-bold text-white">Organizá tus juntadas</h2>
+      <p id="auth-subtitle" class="text-xs text-slate-300 mt-0.5">Fecha, sede, tareas y cuentas, todo en un solo lugar</p>
     </div>
 
     <div id="auth-invite-notice" class="hidden mb-3 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-start gap-2">
@@ -121,22 +121,22 @@
     </section>
 
     <!-- Qué podés hacer -->
-    <ul class="mt-5 space-y-2 text-xs text-slate-600">
-      <li class="flex items-center gap-2"><i data-lucide="calendar-check" class="w-4 h-4 text-slate-400 shrink-0"></i>Votá la fecha y confirmá en un toque</li>
-      <li class="flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-slate-400 shrink-0"></i>Rotación justa de quién recibe</li>
-      <li class="flex items-center gap-2"><i data-lucide="calculator" class="w-4 h-4 text-slate-400 shrink-0"></i>Cuentas claras: quién le transfiere a quién</li>
+    <ul class="mt-5 space-y-2 text-xs text-slate-300">
+      <li class="flex items-center gap-2"><i data-lucide="calendar-check" class="w-4 h-4 text-sky-300 shrink-0"></i>Votá la fecha y confirmá en un toque</li>
+      <li class="flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-sky-300 shrink-0"></i>Rotación justa de quién recibe</li>
+      <li class="flex items-center gap-2"><i data-lucide="calculator" class="w-4 h-4 text-sky-300 shrink-0"></i>Cuentas claras: quién le transfiere a quién</li>
     </ul>
   </main>
 
   <!-- VISTA 1: LISTA PRINCIPAL DE JUNTADAS (DASHBOARD) -->
   <main id="view-events-list" class="max-w-xl mx-auto px-4 pt-6 space-y-4 hidden">
     <!-- Encabezado de la lista -->
-    <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+    <div class="flex items-center justify-between pb-2 border-b border-white/15">
       <div>
-        <h2 class="text-base font-bold text-slate-900">Tus Juntadas</h2>
-        <p class="text-xs text-slate-500">Seleccioná un evento para gestionar o creá uno nuevo</p>
+        <h2 class="text-base font-bold text-white">Tus Juntadas</h2>
+        <p class="text-xs text-slate-300">Seleccioná un evento para gestionar o creá uno nuevo</p>
       </div>
-      <button onclick="openNewEventModal()" class="text-xs px-3 py-1.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors">
+      <button onclick="openNewEventModal()" class="text-xs px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-900 font-medium transition-colors">
         + Crear
       </button>
     </div>
@@ -172,17 +172,17 @@
 
     <!-- Botón Volver -->
     <div class="flex items-center justify-between pb-1">
-      <button onclick="showListView()" class="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 py-1 px-2 rounded hover:bg-slate-100 transition-colors">
+      <button onclick="showListView()" class="text-xs text-slate-300 hover:text-white flex items-center gap-1 py-1 px-2 rounded hover:bg-white/10 transition-colors">
         <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
         <span>Volver a todas las juntadas</span>
       </button>
-      <button id="delete-event-btn" onclick="deleteCurrentEvent()" class="hidden text-[11px] text-slate-400 hover:text-rose-600 py-1 px-2 rounded transition-colors" title="Eliminar este evento">
+      <button id="delete-event-btn" onclick="deleteCurrentEvent()" class="hidden text-[11px] text-slate-400 hover:text-rose-300 py-1 px-2 rounded transition-colors" title="Eliminar este evento">
         Eliminar juntada
       </button>
     </div>
 
     <!-- BARRA DE NAVEGACIÓN POR SECCIONES -->
-    <nav id="section-nav" class="sticky top-[49px] z-20 -mx-4 px-4 py-2 bg-slate-50/95 backdrop-blur border-b border-slate-200">
+    <nav id="section-nav" class="sticky top-[49px] z-20 -mx-4 px-4 py-2 backdrop-blur border-b border-white/10 section-nav-bar">
       <div class="flex gap-1.5 overflow-x-auto no-scrollbar">
         <button onclick="goToSection('sec-rsvp')" data-nav="sec-rsvp" class="nav-chip">
           <i data-lucide="user-check" class="w-3.5 h-3.5"></i><span>Asistencia</span>
