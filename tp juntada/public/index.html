@@ -25,25 +25,23 @@
 <body class="text-slate-800 min-h-screen pb-16">
 
   <!-- ENCABEZADO -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <header class="app-header sticky top-0 z-30">
     <div class="max-w-xl mx-auto px-4 h-13 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2 cursor-pointer" onclick="showListView()">
-        <div class="w-6 h-6 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
-          J
-        </div>
-        <span class="font-bold tracking-wide text-slate-900 text-sm">JUNTAPP</span>
+        <div class="brand-logo w-7 h-7 rounded-lg text-sm">J</div>
+        <span class="font-extrabold tracking-wider text-white text-sm">JUNTAPP</span>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button onclick="openDesignThinkingModal()" class="text-[11px] px-2 py-1 rounded text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors">
+        <button onclick="openDesignThinkingModal()" class="text-[11px] px-2 py-1 rounded-md text-slate-300 hover:text-white hover:bg-white/10 border border-white/15 transition-colors">
           Informe DT
         </button>
         <div id="header-user" class="hidden items-center gap-1.5">
-          <button onclick="openNewEventModal()" class="text-[11px] px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors flex items-center gap-1">
+          <button onclick="openNewEventModal()" class="text-[11px] px-2.5 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-colors flex items-center gap-1">
             <i data-lucide="plus" class="w-3 h-3"></i>
             <span>Nueva</span>
           </button>
-          <button onclick="logout()" title="Cerrar sesión" class="text-[11px] px-2 py-1 rounded text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors flex items-center gap-1">
+          <button onclick="logout()" title="Cerrar sesión" class="text-[11px] px-2 py-1 rounded-md text-slate-300 hover:text-white hover:bg-white/10 border border-white/15 transition-colors flex items-center gap-1">
             <i data-lucide="log-out" class="w-3 h-3"></i>
             <span id="header-user-name" class="max-w-[90px] truncate"></span>
           </button>
@@ -56,8 +54,8 @@
   <main id="view-auth" class="max-w-sm mx-auto px-4 pt-8 pb-6 hidden">
     <!-- Bienvenida -->
     <div class="text-center mb-5">
-      <div class="w-12 h-12 mx-auto rounded-xl bg-white text-slate-900 shadow flex items-center justify-center font-bold text-xl mb-3">J</div>
-      <h2 id="auth-title" class="text-lg font-bold text-white">Organizá tus juntadas</h2>
+      <div class="brand-logo w-14 h-14 mx-auto rounded-2xl text-2xl mb-4">J</div>
+      <h2 id="auth-title" class="text-xl font-bold text-white">Organizá tus juntadas</h2>
       <p id="auth-subtitle" class="text-xs text-slate-300 mt-0.5">Fecha, sede, tareas y cuentas, todo en un solo lugar</p>
     </div>
 
@@ -133,10 +131,10 @@
     <!-- Encabezado de la lista -->
     <div class="flex items-center justify-between pb-2 border-b border-white/15">
       <div>
-        <h2 class="text-base font-bold text-white">Tus Juntadas</h2>
+        <h2 class="text-lg font-bold text-white">Tus Juntadas</h2>
         <p class="text-xs text-slate-300">Seleccioná un evento para gestionar o creá uno nuevo</p>
       </div>
-      <button onclick="openNewEventModal()" class="text-xs px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 text-slate-900 font-medium transition-colors">
+      <button onclick="openNewEventModal()" class="text-xs px-3 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-colors">
         + Crear
       </button>
     </div>
@@ -211,7 +209,7 @@
         Calculando plazo...
       </div>
       
-      <h2 id="event-title" class="text-lg font-bold text-slate-900 mb-1"></h2>
+      <h2 id="event-title" class="text-xl font-bold text-slate-900 mb-1"></h2>
       <p id="event-organizer" class="text-[11px] text-slate-400 mb-2"></p>
 
       <!-- Código para invitar -->

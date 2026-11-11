@@ -404,7 +404,7 @@ function renderEventsList(events) {
 
   container.innerHTML = events.map(event => `
     <div onclick="openEventDetail('${escapeHtml(event.id)}')"
-         class="clean-card p-4 hover:border-slate-300 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+         class="clean-card p-4 hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="space-y-1">
         <div class="flex items-center gap-2">
           <h3 class="text-sm font-bold text-slate-900">${escapeHtml(event.title)}</h3>
