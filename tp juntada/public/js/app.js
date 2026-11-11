@@ -1203,16 +1203,6 @@ function initCountdown() {
 
 // ----------------- MODALES -----------------
 
-function openDesignThinkingModal() {
-  document.getElementById("dt-info-modal")?.classList.remove("hidden");
-  document.getElementById("dt-info-modal")?.classList.add("flex");
-}
-
-function closeDesignThinkingModal() {
-  document.getElementById("dt-info-modal")?.classList.add("hidden");
-  document.getElementById("dt-info-modal")?.classList.remove("flex");
-}
-
 function openNewEventModal() {
   document.getElementById("new-event-modal")?.classList.remove("hidden");
   document.getElementById("new-event-modal")?.classList.add("flex");
