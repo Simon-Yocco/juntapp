@@ -68,7 +68,10 @@ tp juntada/
     ├── views/           presentación de las respuestas
     ├── errors/          errores de la aplicación
     ├── utils/           validaciones y sesión
-    └── scripts/seed.js  datos de ejemplo
+    └── scripts/         seed.js (datos de ejemplo) y buildMockup.js (arma el mockup)
+mockup/
+├── mock-api.js          API simulada en memoria (mismas reglas que el backend)
+└── JUNTAPP_mockup.html  mockup en un solo archivo (generado con npm run mockup)
 ```
 
 ---
@@ -96,6 +99,15 @@ Acceso en: `http://localhost:3000`
 Usuarios: `simon`, `lucas`, `mateo`, `pedro`, `salvador`, `robertino` — contraseña: `juntapp123`.
 
 Si la base ya tiene datos, no se toca nada. Para arrancar con la base vacía, poné `SEED_SAMPLE_DATA=false` en el `.env`.
+
+### Mockup sin servidor
+`mockup/JUNTAPP_mockup.html` es la misma app en un solo archivo, sin servidor ni base de datos: se abre con doble clic (necesita internet solo para los estilos y los íconos).
+Trae los mismos usuarios y juntadas de prueba y aplica las mismas reglas, pero **los datos viven en memoria y se reinician al recargar**.
+
+Si cambia el front, se vuelve a generar con:
+```bash
+npm run mockup
+```
 
 ### Reiniciar la base (opcional)
 ```bash

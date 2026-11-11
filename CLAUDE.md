@@ -68,10 +68,15 @@ tp juntada/
     ├── errors/          AppError y subclases (BadRequest, Unauthorized, Forbidden, NotFound, Conflict)
     ├── utils/           validators, sessionToken (JWT), sessionCookie, joinCode
     ├── seeders/         sampleData.js: datos de prueba (usuarios del grupo + juntadas de ejemplo)
-    └── scripts/seed.js  reinicia la base: BORRA todo y carga los datos de prueba
+    └── scripts/         seed.js: reinicia la base (BORRA todo y carga los datos de prueba)
+                         buildMockup.js: arma mockup/JUNTAPP_mockup.html
+mockup/
+├── mock-api.js          reemplaza a public/js/api.js: misma interfaz, todo en memoria
+└── JUNTAPP_mockup.html  generado: index.html + styles.css + mock-api.js + app.js en un solo archivo
 ```
 - Desde `tp juntada/`: `npm install`, copiar `.env.example` a `.env`, `npm start` → http://localhost:3000
 - **Al arrancar,** `server.js` crea la base si no existe y las tablas que falten. **Si no hay ningún usuario, carga los datos de prueba solo** (`seedIfEmpty`). Nunca borra ni pisa datos. Se desactiva con `SEED_SAMPLE_DATA=false` en `.env`, y en producción (`NODE_ENV=production`) no se cargan nunca.
+- **Mockup sin persistencia** (para entregar o mostrar sin instalar nada): `npm run mockup` genera `mockup/JUNTAPP_mockup.html`. Usa el front real con `mock-api.js`, que copia las reglas de `src/services` y el JSON de `eventPresenter`. **Si cambia una regla de negocio o una ruta, actualizar también `mock-api.js`; si cambia el front, volver a correr `npm run mockup`** y commitear el HTML generado.
 - `npm run seed`: reinicia la base. **Borra todo** y vuelve a cargar los datos de prueba.
 - Los datos de prueba se definen en un solo lugar: `src/seeders/sampleData.js`. Si se cambian ahí, se aplican tanto al arranque como al seed.
 - **Cambios en los modelos:** `sequelize.sync()` crea las tablas que faltan, pero no agrega columnas a las que ya existen. Si se agrega un campo a un modelo, hay que volver a correr `npm run seed`, que borra todo, o hacer el `ALTER TABLE` a mano en Workbench.
