@@ -76,7 +76,7 @@ async function loadSampleData() {
     organizerId: u.salvador,
     title: "Juntada de Fin de Semana",
     dateLabels: ["Viernes 21:30 hs", "Sábado 22:00 hs", "Domingo 13:00 hs"],
-    deadline: hoursFromNow(6),
+    deadline: hoursFromNow(48),
     tasks: [
       { title: "Limpieza final", maxAssignees: 3, isPact: true },
       { title: "Hielo y vasos", maxAssignees: 1 },
@@ -109,7 +109,7 @@ async function loadSampleData() {
     organizerId: u.mateo,
     title: "Asado de Fin de Mes",
     dateLabels: ["Domingo 13:00 hs", "Sábado 21:30 hs"],
-    deadline: hoursFromNow(24),
+    deadline: hoursFromNow(72),
     tasks: [
       { title: "Carne y carbón", maxAssignees: 2 },
       { title: "Limpieza y parrilla", maxAssignees: 2, isPact: true },

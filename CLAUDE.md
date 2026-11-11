@@ -14,7 +14,7 @@ Grupo: Simon Yocco, Lucas Martino, Mateo Bertin, Pedro Ravanelli, Salvador Tosar
 ## Reglas de negocio
 - **Asistencia:** estados `yes` (Asistiré), `maybe` (En duda), `no` (No voy). Una sola respuesta por persona; se puede cambiar.
 - **Fechas:** cada persona puede votar varias opciones (toggle). Cualquier miembro puede proponer una fecha nueva, que queda votada por quien la propone. No se duplican etiquetas. La fecha elegida es la más votada.
-- **Plazo para confirmar** (deadline): se define al crear la juntada (4, 6, 12 o 24 h).
+- **Plazo para confirmar** (deadline): se define al crear la juntada: 6 h, 12 h, 1 día, 2 días, 3 días (por defecto) o 1 semana. La cuenta regresiva muestra días y horas si falta más de un día.
 - **Sede:** modo casa (anfitrión) o punto neutro (Bar / Plaza). Rotación equitativa: le toca al integrante que menos veces fue anfitrión en otras juntadas (sin contar al actual; en empate, el que se sumó primero). Se puede ceder el turno o elegir a mano. El organizador es el anfitrión inicial.
 - **Tareas:** cada tarea tiene un cupo máximo de responsables. Al crearla se puede asignar un responsable (cualquier integrante) o dejarla sin asignar. La tarea de limpieza (`isPact`) es el compromiso de orden mutuo: existe siempre, para no recargar al anfitrión.
 - **Gastos:** el monto es siempre > 0. Cada gasto tiene quién pagó y entre quiénes se divide (por defecto, todos). La liquidación minimiza la cantidad de transferencias (greedy deudores/acreedores) y redondea a pesos. El costo por persona se promedia sobre los confirmados.

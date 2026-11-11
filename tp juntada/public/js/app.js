@@ -1192,9 +1192,12 @@ function updateCountdown() {
     timerEl.textContent = "Plazo para confirmar cerrado";
     return;
   }
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  timerEl.textContent = `${hours}h ${mins}m para confirmar`;
+  const totalMins = Math.floor(diff / (1000 * 60));
+  const days = Math.floor(totalMins / (60 * 24));
+  const hours = Math.floor((totalMins % (60 * 24)) / 60);
+  const mins = totalMins % 60;
+  const left = days > 0 ? `${days}d ${hours}h` : `${hours}h ${mins}m`;
+  timerEl.textContent = `${left} para confirmar`;
 }
 
 function initCountdown() {
@@ -1217,7 +1220,7 @@ async function createNewEventFromForm() {
   const title = document.getElementById("new-title-input")?.value.trim();
   const d1 = document.getElementById("new-d1-input")?.value.trim();
   const d2 = document.getElementById("new-d2-input")?.value.trim();
-  const hours = Number(document.getElementById("new-hours-input")?.value || 6);
+  const hours = Number(document.getElementById("new-hours-input")?.value || 72);
 
   if (!title) {
     showToast("Ponele un título a la juntada", "error");

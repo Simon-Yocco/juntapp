@@ -14,7 +14,8 @@ const { BadRequestError, ForbiddenError, NotFoundError } = require("../errors/Ap
 
 const MAX_CODE_ATTEMPTS = 10;
 
-const DEADLINE_HOURS = [4, 6, 12, 24];
+// Plazos para confirmar, en horas: de unas horas hasta una semana
+const DEADLINE_HOURS = [6, 12, 24, 48, 72, 168];
 const RSVP_STATUSES = ["yes", "maybe", "no"];
 const MAX_DATE_LABEL = 40;
 
