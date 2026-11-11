@@ -529,7 +529,7 @@ function renderDateVoting() {
   });
 
   const summaryBadge = document.getElementById("summary-dates-badge");
-  if (summaryBadge) summaryBadge.textContent = leaderLabel ? `· Preferida: ${leaderLabel}` : "";
+  if (summaryBadge) summaryBadge.textContent = leaderLabel ? `Preferida: ${leaderLabel}` : "";
 
   container.innerHTML = currentEvent.dates.map(date => {
     const isLeader = date.id === leaderId && maxVotes > 0;
@@ -567,7 +567,7 @@ function renderHostSection() {
     : (hostInfo.neutralSpot?.name || "Punto neutro");
 
   hostNameEl.textContent = label;
-  if (hostSummaryEl) hostSummaryEl.textContent = `· ${label}`;
+  if (hostSummaryEl) hostSummaryEl.textContent = label;
 
   renderHostHistory();
 }
@@ -615,7 +615,7 @@ function renderChecklist() {
   const assignedCount = currentEvent.tasks.filter(t => t.assignedTo.length > 0).length;
   const tasksSummaryEl = document.getElementById("summary-tasks-badge");
   if (tasksSummaryEl) {
-    tasksSummaryEl.textContent = `· ${assignedCount}/${currentEvent.tasks.length} asignadas`;
+    tasksSummaryEl.textContent = `${assignedCount}/${currentEvent.tasks.length} asignadas`;
   }
 
   if (currentEvent.tasks.length === 0) {
@@ -675,7 +675,7 @@ function renderAttendeesSection() {
   const yesList = currentEvent.attendees.filter(a => a.status === "yes");
 
   const attendeesSummaryEl = document.getElementById("summary-attendees-badge");
-  if (attendeesSummaryEl) attendeesSummaryEl.textContent = `· ${yesList.length} confirmados`;
+  if (attendeesSummaryEl) attendeesSummaryEl.textContent = `${yesList.length} confirmados`;
 
   if (!container) return;
 
@@ -730,8 +730,8 @@ function renderExpensesSection() {
 
   if (summaryBadge) {
     summaryBadge.textContent = totalAmount > 0
-      ? `· ${formatCurrency(totalAmount)} (${expenses.length} ${expenses.length === 1 ? 'gasto' : 'gastos'})`
-      : "· Sin gastos";
+      ? `${formatCurrency(totalAmount)} (${expenses.length} ${expenses.length === 1 ? 'gasto' : 'gastos'})`
+      : "Sin gastos";
   }
 
   // Selector de quién pagó

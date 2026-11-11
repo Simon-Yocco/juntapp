@@ -7,7 +7,7 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #f8fafc;
+  background-color: #eef1f5; /* un poco más oscuro que las tarjetas, para que se despeguen */
   color: #0f172a;
   -webkit-font-smoothing: antialiased;
 }
@@ -41,6 +41,65 @@ body {
   background: #94a3b8;
 }
 
+/* ----------------- COLOR POR SECCIÓN -----------------
+   Cada sección tiene su color (el mismo en la barra de navegación),
+   para encontrarla rápido: --accent (fuerte) y --accent-soft (fondo suave). */
+#sec-rsvp,      [data-nav="sec-rsvp"]      { --accent: #059669; --accent-soft: #ecfdf5; --accent-border: #a7f3d0; }
+#sec-dates,     [data-nav="sec-dates"]     { --accent: #4f46e5; --accent-soft: #eef2ff; --accent-border: #c7d2fe; }
+#sec-host,      [data-nav="sec-host"]      { --accent: #d97706; --accent-soft: #fffbeb; --accent-border: #fde68a; }
+#sec-tasks,     [data-nav="sec-tasks"]     { --accent: #7c3aed; --accent-soft: #f5f3ff; --accent-border: #ddd6fe; }
+#sec-attendees                             { --accent: #0284c7; --accent-soft: #f0f9ff; --accent-border: #bae6fd; }
+#sec-expenses,  [data-nav="sec-expenses"]  { --accent: #e11d48; --accent-soft: #fff1f2; --accent-border: #fecdd3; }
+#sec-share,     [data-nav="sec-share"]     { --accent: #16a34a; --accent-soft: #f0fdf4; --accent-border: #bbf7d0; }
+
+/* Tarjeta de la juntada: franja de color arriba */
+#sec-rsvp {
+  border-top: 4px solid var(--accent);
+}
+
+/* Secciones desplegables: borde izquierdo y encabezado con el color de la sección */
+.section-card {
+  border-left: 4px solid var(--accent);
+}
+.section-card > summary {
+  background-color: var(--accent-soft);
+}
+.section-card > summary:hover {
+  filter: brightness(0.98);
+}
+.section-card[open] > summary {
+  border-bottom: 1px solid var(--accent-border);
+}
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  background-color: var(--accent);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.section-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--accent);
+  background-color: #ffffff;
+  border: 1px solid var(--accent-border);
+  border-radius: 9999px;
+  padding: 0.1rem 0.5rem;
+  white-space: nowrap;
+}
+.section-badge:empty {
+  display: none;
+}
+
 /* Barra de navegación por secciones */
 .nav-chip {
   display: inline-flex;
@@ -56,12 +115,19 @@ body {
   color: #334155;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
+.nav-chip svg {
+  color: var(--accent, #64748b);
+}
 .nav-chip:hover {
-  background-color: #f1f5f9;
+  background-color: var(--accent-soft, #f1f5f9);
+  border-color: var(--accent-border, #cbd5e1);
 }
 .nav-chip.is-active {
-  background-color: #0f172a;
-  border-color: #0f172a;
+  background-color: var(--accent, #0f172a);
+  border-color: var(--accent, #0f172a);
+  color: #ffffff;
+}
+.nav-chip.is-active svg {
   color: #ffffff;
 }
 .no-scrollbar {

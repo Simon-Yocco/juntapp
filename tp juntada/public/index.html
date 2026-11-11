@@ -22,7 +22,7 @@
     }
   </script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-16">
+<body class="text-slate-800 min-h-screen pb-16">
 
   <!-- ENCABEZADO -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
@@ -242,12 +242,12 @@
     </section>
 
     <!-- 1. DESPLEGABLE: FECHAS -->
-    <details id="sec-dates" class="clean-card group overflow-hidden app-section" open>
+    <details id="sec-dates" class="clean-card group overflow-hidden app-section section-card" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
-          <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
-          <span class="font-semibold">Fechas Propuestas</span>
-          <span id="summary-dates-badge" class="text-[10px] text-slate-500 font-normal"></span>
+          <span class="section-icon"><i data-lucide="calendar" class="w-4 h-4"></i></span>
+          <span class="section-title">Fechas Propuestas</span>
+          <span id="summary-dates-badge" class="section-badge"></span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -291,12 +291,12 @@
     </details>
 
     <!-- 2. DESPLEGABLE: SEDE -->
-    <details id="sec-host" class="clean-card group overflow-hidden app-section" open>
+    <details id="sec-host" class="clean-card group overflow-hidden app-section section-card" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
-          <i data-lucide="home" class="w-4 h-4 text-slate-500"></i>
-          <span class="font-semibold">Sede</span>
-          <span id="summary-host-badge" class="text-[10px] text-slate-500 font-normal"></span>
+          <span class="section-icon"><i data-lucide="home" class="w-4 h-4"></i></span>
+          <span class="section-title">Sede</span>
+          <span id="summary-host-badge" class="section-badge"></span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -339,12 +339,12 @@
     </details>
 
     <!-- 3. DESPLEGABLE: COSAS A TRAER -->
-    <details id="sec-tasks" class="clean-card group overflow-hidden app-section" open>
+    <details id="sec-tasks" class="clean-card group overflow-hidden app-section section-card" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
-          <i data-lucide="check-square" class="w-4 h-4 text-slate-500"></i>
-          <span class="font-semibold">Cosas a Traer</span>
-          <span id="summary-tasks-badge" class="text-[10px] text-slate-500 font-normal"></span>
+          <span class="section-icon"><i data-lucide="check-square" class="w-4 h-4"></i></span>
+          <span class="section-title">Cosas a Traer</span>
+          <span id="summary-tasks-badge" class="section-badge"></span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -382,12 +382,12 @@
     </details>
 
     <!-- 4. DESPLEGABLE: ASISTENCIA -->
-    <details id="sec-attendees" class="clean-card group overflow-hidden app-section" open>
+    <details id="sec-attendees" class="clean-card group overflow-hidden app-section section-card" open>
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
-          <i data-lucide="users" class="w-4 h-4 text-slate-500"></i>
-          <span class="font-semibold">Asistencia</span>
-          <span id="summary-attendees-badge" class="text-[10px] text-slate-500 font-normal"></span>
+          <span class="section-icon"><i data-lucide="users" class="w-4 h-4"></i></span>
+          <span class="section-title">Asistencia</span>
+          <span id="summary-attendees-badge" class="section-badge"></span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -401,12 +401,12 @@
     </details>
 
     <!-- 5. DESPLEGABLE: CUENTAS Y GASTOS (NUEVO) -->
-    <details id="sec-expenses" class="clean-card group overflow-hidden app-section">
+    <details id="sec-expenses" class="clean-card group overflow-hidden app-section section-card">
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
-          <i data-lucide="calculator" class="w-4 h-4 text-slate-500"></i>
-          <span class="font-semibold">División de Gastos</span>
-          <span id="summary-expenses-badge" class="text-[10px] text-slate-500 font-normal"></span>
+          <span class="section-icon"><i data-lucide="calculator" class="w-4 h-4"></i></span>
+          <span class="section-title">División de Gastos</span>
+          <span id="summary-expenses-badge" class="section-badge"></span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -483,12 +483,12 @@
     </details>
 
     <!-- 6. DESPLEGABLE: COMPARTIR EN WHATSAPP -->
-    <details id="sec-share" class="clean-card group overflow-hidden app-section">
+    <details id="sec-share" class="clean-card group overflow-hidden app-section section-card">
       <summary class="flex items-center justify-between p-3.5 cursor-pointer font-medium text-xs text-slate-900 select-none hover:bg-slate-50/70 transition-colors">
         <div class="flex items-center gap-2">
-          <i data-lucide="share-2" class="w-4 h-4 text-slate-500"></i>
-          <span class="font-semibold">Compartir</span>
-          <span class="text-[10px] text-slate-500 font-normal">Código, WhatsApp y enlace</span>
+          <span class="section-icon"><i data-lucide="share-2" class="w-4 h-4"></i></span>
+          <span class="section-title">Compartir</span>
+          <span class="section-badge">Código, WhatsApp y enlace</span>
         </div>
         <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -510,9 +510,9 @@
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
             <span>Enviar a WhatsApp</span>
           </button>
-          <button onclick="copyShareLink()" class="text-xs py-2 px-3 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-colors" title="Copiar enlace">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Copiar Enlace</span>
+          <button onclick="copyShareLink()" class="text-xs py-2 px-3 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap" title="Copiar enlace">
+            <i data-lucide="link" class="w-3.5 h-3.5"></i>
+            <span>Copiar enlace</span>
           </button>
         </div>
       </div>
