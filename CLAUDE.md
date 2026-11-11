@@ -91,7 +91,6 @@ Se crean solos la primera vez que arranca la app con la base vacía, o con `npm 
 Juntadas de ejemplo:
 - **"Juntada de Fin de Semana":** organiza `salvador`. Están los 6 usuarios. Anfitrión: `lucas`.
 - **"Asado de Fin de Mes":** organiza `mateo`. Integrantes: `mateo`, `simon`, `salvador` y `lucas`. **`pedro` y `robertino` no son parte**, así que sirven para probar unirse con el código o con el link.
-- Además hay 9 "Juntadas anteriores" ya vencidas, que solo existen para que la rotación de anfitrión tenga historial.
 
 Cualquier usuario creado desde "Crear cuenta" también sirve para probar.
 

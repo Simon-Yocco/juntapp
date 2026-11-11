@@ -28,11 +28,7 @@ const USERS = [
   { username: "robertino", displayName: "Robertino Joffre" }
 ];
 
-// Juntadas pasadas, para que la rotación de anfitrión tenga historial
-const PAST_HOSTS = ["salvador", "salvador", "salvador", "simon", "simon", "mateo", "mateo", "lucas", "pedro"];
-
 const hoursFromNow = (h) => new Date(Date.now() + h * 3600 * 1000);
-const daysAgo = (d) => new Date(Date.now() - d * 24 * 3600 * 1000);
 
 async function addMembers(eventId, statuses) {
   for (const [userId, status] of Object.entries(statuses)) {
@@ -73,16 +69,6 @@ async function loadSampleData() {
   for (const data of USERS) {
     const user = await userRepository.create({ ...data, passwordHash });
     u[data.username] = user.id;
-  }
-
-  for (const [i, host] of PAST_HOSTS.entries()) {
-    await createEventRecord({
-      organizerId: u[host],
-      title: `Juntada anterior #${i + 1}`,
-      dateLabels: ["Sábado 22:00 hs"],
-      deadline: daysAgo(15 + i * 10),
-      tasks: []
-    });
   }
 
   // Juntada 1: están los 6
@@ -143,7 +129,7 @@ async function loadSampleData() {
   });
   await addExpense(asado.id, { description: "Carne y carbón", amount: 45000, payerId: u.mateo, participantIds: [u.mateo, u.simon, u.salvador] });
 
-  return { users: USERS.length, events: PAST_HOSTS.length + 2 };
+  return { users: USERS.length, events: 2 };
 }
 
 module.exports = { loadSampleData, DEMO_PASSWORD, SAMPLE_USERNAMES: USERS.map(x => x.username) };
